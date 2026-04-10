@@ -51,9 +51,9 @@ const ResumeBuilder = ({ onBack }: ResumeBuilderProps) => {
           </Button>
           <h1 className="text-lg font-bold text-foreground">Resume Builder</h1>
         </div>
-        <Button onClick={handleDownloadPDF} className="gradient-primary border-0 text-primary-foreground gap-2">
-          <Download className="w-4 h-4" />
-          Download PDF
+        <Button onClick={handleDownloadPDF} disabled={downloading} className="gradient-primary border-0 text-primary-foreground gap-2">
+          {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          {downloading ? "Downloading..." : "Download PDF"}
         </Button>
       </nav>
       <div className="flex flex-col lg:flex-row max-w-[1600px] mx-auto">
