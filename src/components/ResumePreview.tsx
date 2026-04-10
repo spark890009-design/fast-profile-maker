@@ -1,141 +1,124 @@
 import { Mail, Phone, MapPin } from "lucide-react";
-import { ResumeData, educationLevels } from "@/types/resume";
+import { ResumeData } from "@/types/resume";
+import { forwardRef } from "react";
 
 interface ResumePreviewProps {
   data: ResumeData;
 }
 
-const ResumePreview = ({ data }: ResumePreviewProps) => {
-  const { personalInfo, education, experience, skills } = data;
-  const hasContent =
-    personalInfo.fullName || education.length > 0 || experience.length > 0 || skills.length > 0;
+const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ data }, ref) => {
+  const hasContent = data.fullName || data.educationLevel || data.jobTitle || data.skills;
 
   if (!hasContent) {
     return (
       <div className="w-full max-w-[595px] min-h-[842px] bg-card rounded-xl card-elevated flex items-center justify-center p-12">
         <p className="text-muted-foreground text-center">
-          Start filling in your details on the left to see your resume preview here ✨
+          Apni details bharna shuru karein — resume yahan dikhega ✨
         </p>
       </div>
     );
   }
 
-  // Sort education by level order
-  const levelOrder = educationLevels.map(l => l.value);
-  const sortedEducation = [...education].sort(
-    (a, b) => levelOrder.indexOf(b.level) - levelOrder.indexOf(a.level)
-  );
+  const skillsList = data.skills ? data.skills.split(",").map(s => s.trim()).filter(Boolean) : [];
 
   return (
-    <div className="w-full max-w-[595px] min-h-[842px] bg-card rounded-xl card-elevated overflow-hidden text-[11px] leading-relaxed">
+    <div ref={ref} id="resume-print" className="w-full max-w-[595px] min-h-[842px] bg-card rounded-xl card-elevated overflow-hidden text-[11px] leading-relaxed print:shadow-none print:rounded-none">
       {/* Header */}
-      <div className="gradient-primary px-8 py-6 text-primary-foreground">
+      <div className="gradient-primary px-8 py-6 text-primary-foreground print:bg-[hsl(174,62%,40%)]">
         <h1 className="text-2xl font-bold tracking-tight">
-          {personalInfo.fullName || "Your Name"}
+          {data.fullName || "Your Name"}
         </h1>
-        {personalInfo.jobTitle && (
-          <p className="text-sm mt-1 opacity-90">{personalInfo.jobTitle}</p>
-        )}
+        {data.jobTitle && <p className="text-sm mt-1 opacity-90">{data.jobTitle}</p>}
         <div className="flex flex-wrap gap-4 mt-3 text-xs opacity-80">
-          {personalInfo.email && (
-            <span className="flex items-center gap-1">
-              <Mail className="w-3 h-3" /> {personalInfo.email}
-            </span>
+          {data.email && (
+            <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {data.email}</span>
           )}
-          {personalInfo.phone && (
-            <span className="flex items-center gap-1">
-              <Phone className="w-3 h-3" /> {personalInfo.phone}
-            </span>
+          {data.phone && (
+            <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {data.phone}</span>
           )}
-          {personalInfo.address && (
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3 h-3" /> {personalInfo.address}
-            </span>
+          {data.address && (
+            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {data.address}</span>
           )}
         </div>
       </div>
 
       <div className="px-8 py-6 space-y-5">
         {/* Summary */}
-        {personalInfo.summary && (
+        {data.summary && (
           <section>
             <h2 className="text-xs font-bold uppercase tracking-widest text-primary border-b-2 border-primary/20 pb-1 mb-2">
               Professional Summary
             </h2>
-            <p className="text-foreground/80">{personalInfo.summary}</p>
+            <p className="text-foreground/80">{data.summary}</p>
           </section>
         )}
 
         {/* Education */}
-        {sortedEducation.length > 0 && (
+        {(data.educationLevel || data.schoolOrCollege) && (
           <section>
             <h2 className="text-xs font-bold uppercase tracking-widest text-primary border-b-2 border-primary/20 pb-1 mb-2">
               Education
             </h2>
-            <div className="space-y-3">
-              {sortedEducation.map((edu) => {
-                const levelInfo = educationLevels.find(l => l.value === edu.level);
-                return (
-                  <div key={edu.id}>
-                    <div className="flex justify-between items-baseline">
-                      <h3 className="font-semibold text-foreground">
-                        {edu.level === '10th' || edu.level === '12th'
-                          ? `${levelInfo?.label}${edu.field ? ` — ${edu.field}` : ''}`
-                          : `${edu.degree}${edu.field ? ` in ${edu.field}` : ''}`
-                        }
-                      </h3>
-                      <span className="text-muted-foreground text-[10px]">
-                        {edu.startDate} {edu.startDate && edu.endDate && "–"} {edu.endDate}
-                      </span>
-                    </div>
-                    <p className="text-primary font-medium text-[10px]">{edu.school}</p>
-                    {edu.percentage && (
-                      <p className="text-foreground/60 text-[10px]">Score: {edu.percentage}</p>
-                    )}
-                  </div>
-                );
-              })}
+            <div className="space-y-1">
+              {data.educationLevel && (
+                <div className="flex items-baseline gap-2">
+                  <span className="font-semibold text-foreground">Level:</span>
+                  <span className="text-foreground/80">{data.educationLevel}</span>
+                </div>
+              )}
+              {data.isGraduate && (
+                <div className="flex items-baseline gap-2">
+                  <span className="font-semibold text-foreground">Graduate:</span>
+                  <span className="text-foreground/80">{data.isGraduate}</span>
+                </div>
+              )}
+              {data.degree && (
+                <div className="flex items-baseline gap-2">
+                  <span className="font-semibold text-foreground">Degree:</span>
+                  <span className="text-foreground/80">{data.degree}</span>
+                </div>
+              )}
+              {data.fieldOfStudy && (
+                <div className="flex items-baseline gap-2">
+                  <span className="font-semibold text-foreground">Field:</span>
+                  <span className="text-foreground/80">{data.fieldOfStudy}</span>
+                </div>
+              )}
+              {data.schoolOrCollege && (
+                <div className="flex items-baseline gap-2">
+                  <span className="font-semibold text-foreground">Institution:</span>
+                  <span className="text-foreground/80">{data.schoolOrCollege}</span>
+                </div>
+              )}
+              {data.percentage && (
+                <div className="flex items-baseline gap-2">
+                  <span className="font-semibold text-foreground">Score:</span>
+                  <span className="text-foreground/80">{data.percentage}</span>
+                </div>
+              )}
             </div>
           </section>
         )}
 
-        {/* Experience */}
-        {experience.length > 0 && (
+        {/* Job Preference */}
+        {data.preferredJob && (
           <section>
             <h2 className="text-xs font-bold uppercase tracking-widest text-primary border-b-2 border-primary/20 pb-1 mb-2">
-              Work Experience
+              Job Preference
             </h2>
-            <div className="space-y-3">
-              {experience.map((exp) => (
-                <div key={exp.id}>
-                  <div className="flex justify-between items-baseline">
-                    <h3 className="font-semibold text-foreground">{exp.position || "Position"}</h3>
-                    <span className="text-muted-foreground text-[10px]">
-                      {exp.startDate} {exp.startDate && exp.endDate && "–"} {exp.endDate}
-                    </span>
-                  </div>
-                  <p className="text-primary font-medium text-[10px]">{exp.company}</p>
-                  {exp.description && (
-                    <p className="text-foreground/70 mt-1">{exp.description}</p>
-                  )}
-                </div>
-              ))}
-            </div>
+            <p className="text-foreground/80">{data.preferredJob}</p>
           </section>
         )}
 
         {/* Skills */}
-        {skills.length > 0 && (
+        {skillsList.length > 0 && (
           <section>
             <h2 className="text-xs font-bold uppercase tracking-widest text-primary border-b-2 border-primary/20 pb-1 mb-2">
               Skills
             </h2>
             <div className="flex flex-wrap gap-1.5 mt-1">
-              {skills.map((skill, i) => (
-                <span
-                  key={i}
-                  className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-medium"
-                >
+              {skillsList.map((skill, i) => (
+                <span key={i} className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-medium">
                   {skill}
                 </span>
               ))}
@@ -145,6 +128,8 @@ const ResumePreview = ({ data }: ResumePreviewProps) => {
       </div>
     </div>
   );
-};
+});
+
+ResumePreview.displayName = "ResumePreview";
 
 export default ResumePreview;
