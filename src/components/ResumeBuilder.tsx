@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, Loader2 } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { ResumeData, defaultResumeData } from "@/types/resume";
 import ResumeForm from "@/components/ResumeForm";
 import ResumePreview from "@/components/ResumePreview";
