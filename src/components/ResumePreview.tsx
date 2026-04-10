@@ -1,5 +1,5 @@
 import { Mail, Phone, MapPin } from "lucide-react";
-import { ResumeData } from "@/types/resume";
+import { ResumeData, educationLevels } from "@/types/resume";
 
 interface ResumePreviewProps {
   data: ResumeData;
@@ -19,6 +19,12 @@ const ResumePreview = ({ data }: ResumePreviewProps) => {
       </div>
     );
   }
+
+  // Sort education by level order
+  const levelOrder = educationLevels.map(l => l.value);
+  const sortedEducation = [...education].sort(
+    (a, b) => levelOrder.indexOf(b.level) - levelOrder.indexOf(a.level)
+  );
 
   return (
     <div className="w-full max-w-[595px] min-h-[842px] bg-card rounded-xl card-elevated overflow-hidden text-[11px] leading-relaxed">
@@ -60,6 +66,39 @@ const ResumePreview = ({ data }: ResumePreviewProps) => {
           </section>
         )}
 
+        {/* Education */}
+        {sortedEducation.length > 0 && (
+          <section>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-primary border-b-2 border-primary/20 pb-1 mb-2">
+              Education
+            </h2>
+            <div className="space-y-3">
+              {sortedEducation.map((edu) => {
+                const levelInfo = educationLevels.find(l => l.value === edu.level);
+                return (
+                  <div key={edu.id}>
+                    <div className="flex justify-between items-baseline">
+                      <h3 className="font-semibold text-foreground">
+                        {edu.level === '10th' || edu.level === '12th'
+                          ? `${levelInfo?.label}${edu.field ? ` — ${edu.field}` : ''}`
+                          : `${edu.degree}${edu.field ? ` in ${edu.field}` : ''}`
+                        }
+                      </h3>
+                      <span className="text-muted-foreground text-[10px]">
+                        {edu.startDate} {edu.startDate && edu.endDate && "–"} {edu.endDate}
+                      </span>
+                    </div>
+                    <p className="text-primary font-medium text-[10px]">{edu.school}</p>
+                    {edu.percentage && (
+                      <p className="text-foreground/60 text-[10px]">Score: {edu.percentage}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         {/* Experience */}
         {experience.length > 0 && (
           <section>
@@ -79,30 +118,6 @@ const ResumePreview = ({ data }: ResumePreviewProps) => {
                   {exp.description && (
                     <p className="text-foreground/70 mt-1">{exp.description}</p>
                   )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Education */}
-        {education.length > 0 && (
-          <section>
-            <h2 className="text-xs font-bold uppercase tracking-widest text-primary border-b-2 border-primary/20 pb-1 mb-2">
-              Education
-            </h2>
-            <div className="space-y-3">
-              {education.map((edu) => (
-                <div key={edu.id}>
-                  <div className="flex justify-between items-baseline">
-                    <h3 className="font-semibold text-foreground">
-                      {edu.degree} {edu.field && `in ${edu.field}`}
-                    </h3>
-                    <span className="text-muted-foreground text-[10px]">
-                      {edu.startDate} {edu.startDate && edu.endDate && "–"} {edu.endDate}
-                    </span>
-                  </div>
-                  <p className="text-primary font-medium text-[10px]">{edu.school}</p>
                 </div>
               ))}
             </div>
