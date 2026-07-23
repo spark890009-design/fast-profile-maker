@@ -132,6 +132,18 @@ const Dashboard = () => {
         </div>
       </nav>
 
+      {typeof window !== "undefined" && "Notification" in window && Notification.permission !== "granted" && (
+        <div className="bg-yellow-500/10 border-b border-yellow-500/30 text-sm">
+          <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-yellow-600" />
+              <span>Enable notifications to get instant updates on withdrawals.</span>
+            </div>
+            <Button size="sm" onClick={enableBrowserNotifications} className="gradient-primary border-0">Allow</Button>
+          </div>
+        </div>
+      )}
+
       {latest && (
         <div className="bg-primary/10 border-b border-primary/20 text-sm">
           <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
@@ -139,11 +151,13 @@ const Dashboard = () => {
               <Bell className="w-4 h-4 text-primary shrink-0" />
               <span className="font-semibold">{latest.title}:</span>
               <span className="truncate text-muted-foreground">{latest.message}</span>
+              <Link to="#notifications" onClick={(e) => { e.preventDefault(); document.getElementById("notifications")?.scrollIntoView({ behavior: "smooth" }); }} className="ml-2 text-primary underline whitespace-nowrap">View</Link>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setLatest(null)}>✕</Button>
           </div>
         </div>
       )}
+
 
       <main className="max-w-5xl mx-auto p-4 space-y-6">
         <Card className="card-elevated gradient-primary border-0 text-primary-foreground">
