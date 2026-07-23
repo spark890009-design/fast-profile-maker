@@ -73,20 +73,24 @@ const Admin = () => {
   const resolveWithdrawal = async (w: Wd, approve: boolean) => {
     setBusy(true);
     if (approve) {
-      // deduct from wallet
-      const { data: wallet } = await supabase.from("wallets").select("balance").eq("user_id", w.user_id).maybeSingle();
-      const cur = Number(wallet?.balance ?? 0);
-      if (cur < Number(w.amount)) { setBusy(false); return toast.error("User has insufficient balance"); }
-      await supabase.from("wallets").update({ balance: Number((cur - Number(w.amount)).toFixed(2)) }).eq("user_id", w.user_id);
-      await supabase.from("wallet_transactions").insert({
-        user_id: w.user_id, amount: w.amount, type: "debit", note: `Withdrawal approved (${w.upi_id})`,
-      });
+      // balance was already deducted at request time; just notify
       await supabase.from("notifications").insert({
-        user_id: w.user_id, title: "Withdrawal Approved", message: `Your withdrawal of ₹${w.amount} to ${w.upi_id} was approved.`,
+        user_id: w.user_id, title: "Withdrawal Approved",
+        message: `Your withdrawal of ₹${w.amount} to ${w.upi_id} was approved.`,
       });
     } else {
+      // refund balance
+      const { data: wallet } = await supabase.from("wallets").select("balance").eq("user_id", w.user_id).maybeSingle();
+      const cur = Number(wallet?.balance ?? 0);
+      const refunded = Number((cur + Number(w.amount)).toFixed(2));
+      await supabase.from("wallets").update({ balance: refunded }).eq("user_id", w.user_id);
+      await supabase.from("wallet_transactions").insert({
+        user_id: w.user_id, amount: w.amount, type: "credit",
+        note: `Withdrawal rejected refund (${w.upi_id})`,
+      });
       await supabase.from("notifications").insert({
-        user_id: w.user_id, title: "Withdrawal Rejected", message: `Your withdrawal of ₹${w.amount} to ${w.upi_id} was rejected.`,
+        user_id: w.user_id, title: "Withdrawal Rejected",
+        message: `Your withdrawal of ₹${w.amount} to ${w.upi_id} was rejected. Amount refunded to wallet.`,
       });
     }
     const { error } = await supabase.from("withdrawals").update({ status: approve ? "approved" : "rejected" }).eq("id", w.id);
