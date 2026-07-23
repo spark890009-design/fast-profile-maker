@@ -27,6 +27,7 @@ const Admin = () => {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [withdrawals, setWithdrawals] = useState<Wd[]>([]);
   const [busy, setBusy] = useState(false);
+  const [search, setSearch] = useState("");
 
   const loadAll = useCallback(async () => {
     const [{ data: profiles }, { data: wallets }, { data: wds }] = await Promise.all([
