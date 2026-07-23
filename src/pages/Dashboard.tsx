@@ -41,6 +41,17 @@ const Dashboard = () => {
     const uid = session.user.id;
     loadAll(uid);
 
+    // Ask browser permission for push-style notifications
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().catch(() => {});
+    }
+
+    const notify = (title: string, body: string) => {
+      if ("Notification" in window && Notification.permission === "granted") {
+        try { new Notification(title, { body, icon: "/favicon.ico" }); } catch { /* ignore */ }
+      }
+    };
+
     const channel = supabase
       .channel("dashboard-updates")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, (payload) => {
@@ -49,6 +60,7 @@ const Dashboard = () => {
           setNotifs((prev) => [row, ...prev].slice(0, 20));
           setLatest(row);
           toast.message(row.title, { description: row.message });
+          notify(row.title, row.message);
         }
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "withdrawals" }, () => loadAll(uid))
@@ -60,6 +72,14 @@ const Dashboard = () => {
 
     return () => { supabase.removeChannel(channel); };
   }, [session, loadAll]);
+
+  const enableBrowserNotifications = async () => {
+    if (!("Notification" in window)) return toast.error("Browser doesn't support notifications");
+    const perm = await Notification.requestPermission();
+    if (perm === "granted") toast.success("Notifications enabled");
+    else toast.error("Notifications blocked. Enable from browser settings.");
+  };
+
 
   if (!ready || !session) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>;
