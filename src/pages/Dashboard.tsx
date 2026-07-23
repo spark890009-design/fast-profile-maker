@@ -194,8 +194,9 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card id="notifications">
             <CardHeader><CardTitle className="text-base flex items-center gap-2"><Bell className="w-4 h-4" /> Notifications</CardTitle></CardHeader>
+
             <CardContent className="space-y-2">
               {notifs.length === 0 && <p className="text-muted-foreground text-sm">No notifications.</p>}
               {notifs.map((n) => (
