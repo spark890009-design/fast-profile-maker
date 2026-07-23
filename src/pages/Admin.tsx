@@ -32,11 +32,15 @@ const Admin = () => {
     const [{ data: profiles }, { data: wallets }, { data: wds }] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("wallets").select("user_id,balance"),
-      supabase.from("withdrawals").select("*, profiles!inner(full_name,user_id)").order("created_at", { ascending: false }),
+      supabase.from("withdrawals").select("*").order("created_at", { ascending: false }),
     ]);
     const balMap = new Map((wallets ?? []).map((w) => [w.user_id, Number(w.balance)]));
+    const profMap = new Map(((profiles ?? []) as UserRow[]).map((p) => [p.id, p]));
     setUsers(((profiles ?? []) as UserRow[]).map((p) => ({ ...p, balance: balMap.get(p.id) ?? 0 })));
-    setWithdrawals((wds ?? []) as Wd[]);
+    setWithdrawals(((wds ?? []) as Wd[]).map((w) => {
+      const p = profMap.get(w.user_id);
+      return { ...w, profiles: p ? { full_name: p.full_name, user_id: p.user_id } : null };
+    }));
   }, []);
 
   useEffect(() => { if (ready && isAdmin) loadAll(); }, [ready, isAdmin, loadAll]);
