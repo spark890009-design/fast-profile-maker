@@ -112,6 +112,10 @@ const Dashboard = () => {
         </div>
       </nav>
 
+          </div>
+        </div>
+      </nav>
+
       {latest && (
         <div className="bg-primary/10 border-b border-primary/20 text-sm">
           <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
@@ -124,8 +128,6 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-        </div>
-      </nav>
 
       <main className="max-w-5xl mx-auto p-4 space-y-6">
         <Card className="card-elevated gradient-primary border-0 text-primary-foreground">
