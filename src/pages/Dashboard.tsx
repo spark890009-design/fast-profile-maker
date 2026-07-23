@@ -112,10 +112,6 @@ const Dashboard = () => {
         </div>
       </nav>
 
-          </div>
-        </div>
-      </nav>
-
       {latest && (
         <div className="bg-primary/10 border-b border-primary/20 text-sm">
           <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
