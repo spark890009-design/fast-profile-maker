@@ -36,13 +36,30 @@ const Withdraw = () => {
     if (parsed.data.amount > balance) { toast.error("Insufficient balance"); return; }
 
     setLoading(true);
+    const newBal = Number((balance - parsed.data.amount).toFixed(2));
+    const { error: e1 } = await supabase.from("wallets").update({ balance: newBal }).eq("user_id", session.user.id);
+    if (e1) { setLoading(false); toast.error(e1.message); return; }
     const { error } = await supabase.from("withdrawals").insert({
       user_id: session.user.id,
       upi_id: parsed.data.upi_id,
       amount: parsed.data.amount,
     });
+    if (error) {
+      // rollback
+      await supabase.from("wallets").update({ balance }).eq("user_id", session.user.id);
+      setLoading(false);
+      toast.error(error.message);
+      return;
+    }
+    await supabase.from("wallet_transactions").insert({
+      user_id: session.user.id, amount: parsed.data.amount, type: "debit",
+      note: `Withdrawal pending (${parsed.data.upi_id})`,
+    });
+    await supabase.from("notifications").insert({
+      user_id: session.user.id, title: "Withdrawal Requested",
+      message: `Your withdrawal of ₹${parsed.data.amount} to ${parsed.data.upi_id} is pending. Balance debited.`,
+    });
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
     toast.success("Withdrawal request submitted. Status: Pending");
     nav("/dashboard");
   };
