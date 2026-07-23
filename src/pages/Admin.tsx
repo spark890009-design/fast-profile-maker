@@ -27,6 +27,7 @@ const Admin = () => {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [withdrawals, setWithdrawals] = useState<Wd[]>([]);
   const [busy, setBusy] = useState(false);
+  const [search, setSearch] = useState("");
 
   const loadAll = useCallback(async () => {
     const [{ data: profiles }, { data: wallets }, { data: wds }] = await Promise.all([
@@ -126,7 +127,24 @@ const Admin = () => {
           </TabsList>
 
           <TabsContent value="users" className="space-y-2 mt-4">
-            {users.map((u) => (
+            <Input
+              placeholder="Search by User ID (SPK1001), name, email or mobile..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="mb-2"
+            />
+            {users
+              .filter((u) => {
+                const q = search.trim().toLowerCase();
+                if (!q) return true;
+                return (
+                  u.user_id?.toLowerCase().includes(q) ||
+                  u.full_name?.toLowerCase().includes(q) ||
+                  u.email?.toLowerCase().includes(q) ||
+                  u.mobile?.toLowerCase().includes(q)
+                );
+              })
+              .map((u) => (
               <Card key={u.id}>
                 <CardContent className="p-4 flex flex-col md:flex-row md:items-center gap-3 justify-between">
                   <div>
