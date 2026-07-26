@@ -97,29 +97,15 @@ const Dashboard = () => {
             <span className="font-bold text-lg text-gradient">SPK Wallet</span>
           </div>
           <div className="flex items-center gap-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell className="w-5 h-5" />
-                  {unread > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                      {unread > 9 ? "9+" : unread}
-                    </span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80 max-h-96 overflow-auto p-0">
-                <div className="p-3 border-b border-border font-semibold text-sm">Notifications</div>
-                {notifs.length === 0 && <p className="p-3 text-sm text-muted-foreground">No notifications.</p>}
-                {notifs.map((n) => (
-                  <div key={n.id} className="p-3 border-b border-border last:border-0">
-                    <div className="font-semibold text-sm">{n.title}</div>
-                    <div className="text-sm text-muted-foreground">{n.message}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString()}</div>
-                  </div>
-                ))}
-              </PopoverContent>
-            </Popover>
+            <Button variant="ghost" size="sm" className="relative" onClick={() => nav("/notifications")}>
+              <Bell className="w-5 h-5" />
+              {unread > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                  {unread > 9 ? "9+" : unread}
+                </span>
+              )}
+            </Button>
+
             {isAdmin && (
               <Button variant="outline" size="sm" onClick={() => nav("/admin")}>
                 <Shield className="w-4 h-4 mr-1" /> Admin
@@ -151,7 +137,7 @@ const Dashboard = () => {
               <Bell className="w-4 h-4 text-primary shrink-0" />
               <span className="font-semibold">{latest.title}:</span>
               <span className="truncate text-muted-foreground">{latest.message}</span>
-              <Link to="#notifications" onClick={(e) => { e.preventDefault(); document.getElementById("notifications")?.scrollIntoView({ behavior: "smooth" }); }} className="ml-2 text-primary underline whitespace-nowrap">View</Link>
+              <Link to="/notifications" className="ml-2 text-primary underline whitespace-nowrap">View</Link>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setLatest(null)}>✕</Button>
           </div>
