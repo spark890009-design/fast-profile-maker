@@ -65,9 +65,16 @@ const Admin = () => {
     await supabase.from("wallet_transactions").insert({
       user_id: u.id, amount: Math.abs(delta), type: delta > 0 ? "credit" : "debit", note,
     });
+    const isCredit = delta > 0;
+    await supabase.from("notifications").insert({
+      user_id: u.id,
+      title: isCredit ? "Wallet Credited" : "Wallet Debited",
+      message: `Admin has ${isCredit ? "credited" : "debited"} ₹${Math.abs(delta).toFixed(2)} ${isCredit ? "to" : "from"} your wallet. New balance: ₹${newBal.toFixed(2)}.${note ? ` Note: ${note}` : ""}`,
+    });
     setBusy(false);
     toast.success("Balance updated");
     loadAll();
+
   };
 
   const resolveWithdrawal = async (w: Wd, approve: boolean) => {
