@@ -137,7 +137,7 @@ const Dashboard = () => {
               <Bell className="w-4 h-4 text-primary shrink-0" />
               <span className="font-semibold">{latest.title}:</span>
               <span className="truncate text-muted-foreground">{latest.message}</span>
-              <Link to="#notifications" onClick={(e) => { e.preventDefault(); document.getElementById("notifications")?.scrollIntoView({ behavior: "smooth" }); }} className="ml-2 text-primary underline whitespace-nowrap">View</Link>
+              <Link to="/notifications" className="ml-2 text-primary underline whitespace-nowrap">View</Link>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setLatest(null)}>✕</Button>
           </div>
