@@ -1,0 +1,13 @@
+{
+  "name": "SPK Wallet",
+  "short_name": "SPK Wallet",
+  "description": "SPK Wallet - Manage balance and withdrawals",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0891b2",
+  "icons": [
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

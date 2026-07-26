@@ -3,8 +3,10 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { InstallAppButton } from "@/components/InstallAppButton";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+
 import Dashboard from "./pages/Dashboard";
 import Withdraw from "./pages/Withdraw";
 import Admin from "./pages/Admin";
@@ -29,7 +31,9 @@ const App = () => (
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <InstallAppButton />
       </BrowserRouter>
+
     </TooltipProvider>
   </QueryClientProvider>
 );
