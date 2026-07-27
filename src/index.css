@@ -89,6 +89,10 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-family: 'Inter', sans-serif;
+    background-image:
+      radial-gradient(ellipse at top left, hsl(152 90% 52% / 0.08), transparent 50%),
+      radial-gradient(ellipse at bottom right, hsl(160 85% 45% / 0.06), transparent 55%);
+    background-attachment: fixed;
   }
 }
 
