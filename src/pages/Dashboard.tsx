@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2 } from "lucide-react";
+import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User } from "lucide-react";
 import { toast } from "sonner";
+import WalletOrb3D from "@/components/WalletOrb3D";
 
 interface Profile { user_id: string; full_name: string; email: string; mobile: string; blocked: boolean; }
 interface Withdrawal { id: string; amount: number; upi_id: string; status: string; created_at: string; }
@@ -97,6 +98,12 @@ const Dashboard = () => {
             <span className="font-bold text-lg text-gradient">SPK Wallet</span>
           </div>
           <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/60 border border-border">
+              <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center text-primary-foreground">
+                <User className="w-4 h-4" />
+              </div>
+              <span className="font-mono text-xs tracking-wider">ID {profile?.user_id ?? "--------"}</span>
+            </div>
             <Button variant="ghost" size="sm" className="relative" onClick={() => nav("/notifications")}>
               <Bell className="w-5 h-5" />
               {unread > 0 && (
@@ -146,18 +153,32 @@ const Dashboard = () => {
 
 
       <main className="max-w-5xl mx-auto p-4 space-y-6">
-        <Card className="card-elevated gradient-primary border-0 text-primary-foreground">
-          <CardContent className="p-6">
-            <p className="text-sm opacity-90">Wallet Balance</p>
-            <p className="text-4xl font-extrabold my-2">₹{balance.toFixed(2)}</p>
-            <div className="flex items-center justify-between mt-4">
-              <div className="text-sm opacity-90">
-                <div>{profile?.full_name}</div>
-                <div className="font-mono">{profile?.user_id}</div>
+        <Card className="card-elevated border-0 text-primary-foreground overflow-hidden relative bg-gradient-to-br from-emerald-500/90 via-emerald-600/80 to-teal-700/90">
+          <div className="absolute inset-0 opacity-40 pointer-events-none">
+            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-emerald-300/40 blur-3xl" />
+            <div className="absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-teal-400/30 blur-3xl" />
+          </div>
+          <CardContent className="p-6 relative grid grid-cols-1 md:grid-cols-[1fr_180px] gap-4 items-center">
+            <div>
+              <p className="text-sm opacity-90">Wallet Balance</p>
+              <p className="text-4xl font-extrabold my-2 drop-shadow">₹{balance.toFixed(2)}</p>
+              <div className="flex items-center justify-between mt-4 gap-4 flex-wrap">
+                <div className="text-sm opacity-90 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center border border-white/30">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold">{profile?.full_name}</div>
+                    <div className="font-mono text-xs opacity-90 tracking-wider">ID • {profile?.user_id}</div>
+                  </div>
+                </div>
+                <Button asChild variant="secondary">
+                  <Link to="/withdraw"><ArrowUpRight className="w-4 h-4 mr-1" /> Withdraw</Link>
+                </Button>
               </div>
-              <Button asChild variant="secondary">
-                <Link to="/withdraw"><ArrowUpRight className="w-4 h-4 mr-1" /> Withdraw</Link>
-              </Button>
+            </div>
+            <div className="h-40 md:h-44 -mr-2">
+              <WalletOrb3D />
             </div>
           </CardContent>
         </Card>
