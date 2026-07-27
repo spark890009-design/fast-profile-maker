@@ -14,7 +14,7 @@ const AnimatedOrb = () => {
   return (
     <Float speed={2} rotationIntensity={0.6} floatIntensity={1.2}>
       <Icosahedron ref={ref} args={[1, 4]}>
-        {/* @ts-expect-error drei material props */}
+        
         <MeshDistortMaterial
           color="#22e39a"
           emissive="#0a8a5a"
