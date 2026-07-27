@@ -98,6 +98,12 @@ const Dashboard = () => {
             <span className="font-bold text-lg text-gradient">SPK Wallet</span>
           </div>
           <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/60 border border-border">
+              <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center text-primary-foreground">
+                <User className="w-4 h-4" />
+              </div>
+              <span className="font-mono text-xs tracking-wider">ID {profile?.user_id ?? "--------"}</span>
+            </div>
             <Button variant="ghost" size="sm" className="relative" onClick={() => nav("/notifications")}>
               <Bell className="w-5 h-5" />
               {unread > 0 && (
