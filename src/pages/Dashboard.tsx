@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2 } from "lucide-react";
+import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User } from "lucide-react";
 import { toast } from "sonner";
+import WalletOrb3D from "@/components/WalletOrb3D";
 
 interface Profile { user_id: string; full_name: string; email: string; mobile: string; blocked: boolean; }
 interface Withdrawal { id: string; amount: number; upi_id: string; status: string; created_at: string; }
