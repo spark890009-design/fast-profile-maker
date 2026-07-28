@@ -10,7 +10,7 @@ import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User, Settings as 
 import { toast } from "sonner";
 import WalletOrb3D from "@/components/WalletOrb3D";
 import { getAvatar } from "@/lib/avatars";
-import { isSoundEnabled, playRing, primeSound, setSoundEnabled } from "@/lib/sound";
+import { isSoundEnabled, playRing } from "@/lib/sound";
 
 interface Profile { user_id: string; full_name: string; email: string; mobile: string; blocked: boolean; }
 interface Withdrawal { id: string; amount: number; upi_id: string; status: string; created_at: string; }
