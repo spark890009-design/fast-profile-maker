@@ -10,6 +10,7 @@ import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User, Settings as 
 import { toast } from "sonner";
 import WalletOrb3D from "@/components/WalletOrb3D";
 import { getAvatar } from "@/lib/avatars";
+import { isSoundEnabled, playRing, primeSound, setSoundEnabled } from "@/lib/sound";
 
 interface Profile { user_id: string; full_name: string; email: string; mobile: string; blocked: boolean; }
 interface Withdrawal { id: string; amount: number; upi_id: string; status: string; created_at: string; }
@@ -70,6 +71,14 @@ const Dashboard = () => {
           setLatest(row);
           toast.message(row.title, { description: row.message });
           notify(row.title, row.message);
+          if (isSoundEnabled()) {
+            const t = (row.title + " " + row.message).toLowerCase();
+            const variant: "success" | "error" | "info" =
+              /approve|credit|success/.test(t) ? "success"
+              : /reject|debit|block|fail/.test(t) ? "error"
+              : "info";
+            playRing(variant);
+          }
         }
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "withdrawals" }, () => loadAll(uid))
