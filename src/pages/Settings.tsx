@@ -3,17 +3,25 @@ import { useNavigate } from "react-router-dom";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Check, Loader2, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { ArrowLeft, Bell, BellRing, Check, Loader2, Trash2, Volume2 } from "lucide-react";
 import { AVATAR_PRESETS, getAvatar, setAvatar, clearAvatar } from "@/lib/avatars";
+import { isSoundEnabled, playRing, primeSound, setSoundEnabled } from "@/lib/sound";
 import { toast } from "sonner";
 
 const Settings = () => {
   const { session, ready } = useAuthGuard();
   const nav = useNavigate();
   const [selected, setSelected] = useState<string | null>(null);
+  const [sound, setSound] = useState(false);
+  const [browserPerm, setBrowserPerm] = useState<NotificationPermission>("default");
 
   useEffect(() => {
     if (session) setSelected(getAvatar(session.user.id));
+    setSound(isSoundEnabled());
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setBrowserPerm(Notification.permission);
+    }
   }, [session]);
 
   if (!ready || !session) {
