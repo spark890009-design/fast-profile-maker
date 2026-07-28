@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User } from "lucide-react";
+import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User, Settings as SettingsIcon } from "lucide-react";
 import { toast } from "sonner";
 import WalletOrb3D from "@/components/WalletOrb3D";
+import { getAvatar } from "@/lib/avatars";
 
 interface Profile { user_id: string; full_name: string; email: string; mobile: string; blocked: boolean; }
 interface Withdrawal { id: string; amount: number; upi_id: string; status: string; created_at: string; }
@@ -22,6 +23,7 @@ const Dashboard = () => {
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [notifs, setNotifs] = useState<Notification[]>([]);
   const [latest, setLatest] = useState<Notification | null>(null);
+  const [avatar, setAvatarState] = useState<string | null>(null);
 
   const loadAll = useCallback(async (uid: string) => {
     const [p, w, wd, n] = await Promise.all([
@@ -41,6 +43,12 @@ const Dashboard = () => {
     if (!session) return;
     const uid = session.user.id;
     loadAll(uid);
+    setAvatarState(getAvatar(uid));
+    const onAv = (e: Event) => {
+      const d = (e as CustomEvent).detail as { uid: string; url: string | null };
+      if (d.uid === uid) setAvatarState(d.url);
+    };
+    window.addEventListener("avatar-changed", onAv);
 
     // Ask browser permission for push-style notifications
     if ("Notification" in window && Notification.permission === "default") {
@@ -71,7 +79,7 @@ const Dashboard = () => {
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => { supabase.removeChannel(channel); window.removeEventListener("avatar-changed", onAv); };
   }, [session, loadAll]);
 
   const enableBrowserNotifications = async () => {
