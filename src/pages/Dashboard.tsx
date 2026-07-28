@@ -103,15 +103,18 @@ const Dashboard = () => {
         <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <Wallet className="w-6 h-6 text-primary" />
-            <span className="font-bold text-lg text-gradient">SPK Wallet</span>
+            <span className="font-bold text-lg text-gradient">SPARK WALLET</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/60 border border-border">
-              <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center text-primary-foreground">
-                <User className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center text-primary-foreground overflow-hidden">
+                {avatar ? <img src={avatar} alt="dp" className="w-full h-full object-cover" /> : <User className="w-4 h-4" />}
               </div>
               <span className="font-mono text-xs tracking-wider">ID {profile?.user_id ?? "--------"}</span>
             </div>
+            <Button variant="ghost" size="sm" onClick={() => nav("/settings")} aria-label="Settings">
+              <SettingsIcon className="w-5 h-5" />
+            </Button>
             <Button variant="ghost" size="sm" className="relative" onClick={() => nav("/notifications")}>
               <Bell className="w-5 h-5" />
               {unread > 0 && (
@@ -172,8 +175,8 @@ const Dashboard = () => {
               <p className="text-4xl font-extrabold my-2 drop-shadow">₹{balance.toFixed(2)}</p>
               <div className="flex items-center justify-between mt-4 gap-4 flex-wrap">
                 <div className="text-sm opacity-90 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center border border-white/30">
-                    <User className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center border border-white/30 overflow-hidden">
+                    {avatar ? <img src={avatar} alt="dp" className="w-full h-full object-cover" /> : <User className="w-5 h-5" />}
                   </div>
                   <div>
                     <div className="font-semibold">{profile?.full_name}</div>
