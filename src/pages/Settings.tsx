@@ -93,6 +93,62 @@ const Settings = () => {
             </p>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <BellRing className="w-4 h-4 text-primary" /> Alerts & Sound
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <div className="font-medium flex items-center gap-2"><Volume2 className="w-4 h-4" /> Ring on updates</div>
+                <p className="text-xs text-muted-foreground">
+                  Play a chime when a withdrawal is approved / rejected or admin credits / debits your wallet.
+                </p>
+              </div>
+              <Switch
+                checked={sound}
+                onCheckedChange={(v) => {
+                  primeSound();
+                  setSoundEnabled(v);
+                  setSound(v);
+                  if (v) { playRing("success"); toast.success("Ring alerts enabled"); }
+                  else toast.message("Ring alerts disabled");
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <div className="font-medium flex items-center gap-2"><Bell className="w-4 h-4" /> Browser notifications</div>
+                <p className="text-xs text-muted-foreground">
+                  Desktop / mobile pop-up alerts even when app is in background.
+                  Current: <span className="font-mono">{browserPerm}</span>
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant={browserPerm === "granted" ? "outline" : "default"}
+                disabled={browserPerm === "granted"}
+                onClick={async () => {
+                  if (!("Notification" in window)) return toast.error("Not supported");
+                  const p = await Notification.requestPermission();
+                  setBrowserPerm(p);
+                  if (p === "granted") toast.success("Notifications enabled");
+                  else toast.error("Blocked. Enable from browser settings.");
+                }}
+              >
+                {browserPerm === "granted" ? "Enabled" : "Allow"}
+              </Button>
+            </div>
+
+            <Button variant="secondary" size="sm" onClick={() => { primeSound(); playRing("success"); }}>
+              <Volume2 className="w-4 h-4 mr-1" /> Test ring
+            </Button>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
