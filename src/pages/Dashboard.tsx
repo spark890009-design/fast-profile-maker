@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User } from "lucide-react";
+import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User, Settings as SettingsIcon } from "lucide-react";
 import { toast } from "sonner";
 import WalletOrb3D from "@/components/WalletOrb3D";
+import { getAvatar } from "@/lib/avatars";
 
 interface Profile { user_id: string; full_name: string; email: string; mobile: string; blocked: boolean; }
 interface Withdrawal { id: string; amount: number; upi_id: string; status: string; created_at: string; }
@@ -22,6 +23,7 @@ const Dashboard = () => {
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [notifs, setNotifs] = useState<Notification[]>([]);
   const [latest, setLatest] = useState<Notification | null>(null);
+  const [avatar, setAvatarState] = useState<string | null>(null);
 
   const loadAll = useCallback(async (uid: string) => {
     const [p, w, wd, n] = await Promise.all([
@@ -41,6 +43,12 @@ const Dashboard = () => {
     if (!session) return;
     const uid = session.user.id;
     loadAll(uid);
+    setAvatarState(getAvatar(uid));
+    const onAv = (e: Event) => {
+      const d = (e as CustomEvent).detail as { uid: string; url: string | null };
+      if (d.uid === uid) setAvatarState(d.url);
+    };
+    window.addEventListener("avatar-changed", onAv);
 
     // Ask browser permission for push-style notifications
     if ("Notification" in window && Notification.permission === "default") {
@@ -71,7 +79,7 @@ const Dashboard = () => {
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => { supabase.removeChannel(channel); window.removeEventListener("avatar-changed", onAv); };
   }, [session, loadAll]);
 
   const enableBrowserNotifications = async () => {
@@ -95,15 +103,18 @@ const Dashboard = () => {
         <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <Wallet className="w-6 h-6 text-primary" />
-            <span className="font-bold text-lg text-gradient">SPK Wallet</span>
+            <span className="font-bold text-lg text-gradient">SPARK WALLET</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/60 border border-border">
-              <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center text-primary-foreground">
-                <User className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center text-primary-foreground overflow-hidden">
+                {avatar ? <img src={avatar} alt="dp" className="w-full h-full object-cover" /> : <User className="w-4 h-4" />}
               </div>
               <span className="font-mono text-xs tracking-wider">ID {profile?.user_id ?? "--------"}</span>
             </div>
+            <Button variant="ghost" size="sm" onClick={() => nav("/settings")} aria-label="Settings">
+              <SettingsIcon className="w-5 h-5" />
+            </Button>
             <Button variant="ghost" size="sm" className="relative" onClick={() => nav("/notifications")}>
               <Bell className="w-5 h-5" />
               {unread > 0 && (
@@ -164,8 +175,8 @@ const Dashboard = () => {
               <p className="text-4xl font-extrabold my-2 drop-shadow">₹{balance.toFixed(2)}</p>
               <div className="flex items-center justify-between mt-4 gap-4 flex-wrap">
                 <div className="text-sm opacity-90 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center border border-white/30">
-                    <User className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center border border-white/30 overflow-hidden">
+                    {avatar ? <img src={avatar} alt="dp" className="w-full h-full object-cover" /> : <User className="w-5 h-5" />}
                   </div>
                   <div>
                     <div className="font-semibold">{profile?.full_name}</div>
