@@ -3,17 +3,25 @@ import { useNavigate } from "react-router-dom";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Check, Loader2, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { ArrowLeft, Bell, BellRing, Check, Loader2, Trash2, Volume2 } from "lucide-react";
 import { AVATAR_PRESETS, getAvatar, setAvatar, clearAvatar } from "@/lib/avatars";
+import { isSoundEnabled, playRing, primeSound, setSoundEnabled } from "@/lib/sound";
 import { toast } from "sonner";
 
 const Settings = () => {
   const { session, ready } = useAuthGuard();
   const nav = useNavigate();
   const [selected, setSelected] = useState<string | null>(null);
+  const [sound, setSound] = useState(false);
+  const [browserPerm, setBrowserPerm] = useState<NotificationPermission>("default");
 
   useEffect(() => {
     if (session) setSelected(getAvatar(session.user.id));
+    setSound(isSoundEnabled());
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setBrowserPerm(Notification.permission);
+    }
   }, [session]);
 
   if (!ready || !session) {
@@ -83,6 +91,62 @@ const Settings = () => {
             <p className="text-xs text-muted-foreground mt-4">
               Anime-style avatars powered by DiceBear. Your choice is saved on this device.
             </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <BellRing className="w-4 h-4 text-primary" /> Alerts & Sound
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <div className="font-medium flex items-center gap-2"><Volume2 className="w-4 h-4" /> Ring on updates</div>
+                <p className="text-xs text-muted-foreground">
+                  Play a chime when a withdrawal is approved / rejected or admin credits / debits your wallet.
+                </p>
+              </div>
+              <Switch
+                checked={sound}
+                onCheckedChange={(v) => {
+                  primeSound();
+                  setSoundEnabled(v);
+                  setSound(v);
+                  if (v) { playRing("success"); toast.success("Ring alerts enabled"); }
+                  else toast.message("Ring alerts disabled");
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <div className="font-medium flex items-center gap-2"><Bell className="w-4 h-4" /> Browser notifications</div>
+                <p className="text-xs text-muted-foreground">
+                  Desktop / mobile pop-up alerts even when app is in background.
+                  Current: <span className="font-mono">{browserPerm}</span>
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant={browserPerm === "granted" ? "outline" : "default"}
+                disabled={browserPerm === "granted"}
+                onClick={async () => {
+                  if (!("Notification" in window)) return toast.error("Not supported");
+                  const p = await Notification.requestPermission();
+                  setBrowserPerm(p);
+                  if (p === "granted") toast.success("Notifications enabled");
+                  else toast.error("Blocked. Enable from browser settings.");
+                }}
+              >
+                {browserPerm === "granted" ? "Enabled" : "Allow"}
+              </Button>
+            </div>
+
+            <Button variant="secondary" size="sm" onClick={() => { primeSound(); playRing("success"); }}>
+              <Volume2 className="w-4 h-4 mr-1" /> Test ring
+            </Button>
           </CardContent>
         </Card>
       </main>
