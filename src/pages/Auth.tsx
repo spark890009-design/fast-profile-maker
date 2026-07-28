@@ -114,7 +114,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-2 mb-6">
           <Wallet className="w-8 h-8 text-primary" />
-          <span className="text-2xl font-bold text-gradient">SPK Wallet</span>
+          <span className="text-2xl font-bold text-gradient">SPARK WALLET</span>
         </div>
         <Card className="card-elevated">
           <CardHeader>
