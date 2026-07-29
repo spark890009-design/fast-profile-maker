@@ -36,10 +36,10 @@ const Withdraw = () => {
     if (parsed.data.amount > balance) { toast.error("Insufficient balance"); return; }
 
     setLoading(true);
-    const { error } = await supabase.rpc("request_withdrawal", {
-      _upi_id: parsed.data.upi_id,
-      _amount: parsed.data.amount,
-    });
+    const { error } = await (supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<{ error: { message: string } | null }>)(
+      "request_withdrawal",
+      { _upi_id: parsed.data.upi_id, _amount: parsed.data.amount },
+    );
     setLoading(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Withdrawal request submitted. Status: Pending");
