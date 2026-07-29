@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import WalletOrb3D from "@/components/WalletOrb3D";
 import { getAvatar } from "@/lib/avatars";
 import { isSoundEnabled, playRing } from "@/lib/sound";
+import { registerPush } from "@/lib/push";
 
 interface Profile { user_id: string; full_name: string; email: string; mobile: string; blocked: boolean; }
 interface Withdrawal { id: string; amount: number; upi_id: string; status: string; created_at: string; }
@@ -51,10 +52,11 @@ const Dashboard = () => {
     };
     window.addEventListener("avatar-changed", onAv);
 
-    // Ask browser permission for push-style notifications
+    // Ask browser permission for push-style notifications & register service worker push
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission().catch(() => {});
     }
+    registerPush(uid).catch(() => {});
 
     const notify = (title: string, body: string) => {
       if ("Notification" in window && Notification.permission === "granted") {
@@ -94,8 +96,11 @@ const Dashboard = () => {
   const enableBrowserNotifications = async () => {
     if (!("Notification" in window)) return toast.error("Browser doesn't support notifications");
     const perm = await Notification.requestPermission();
-    if (perm === "granted") toast.success("Notifications enabled");
-    else toast.error("Notifications blocked. Enable from browser settings.");
+    if (perm !== "granted") return toast.error("Notifications blocked. Enable from browser settings.");
+    if (session) {
+      const ok = await registerPush(session.user.id);
+      toast.success(ok ? "Notifications enabled — you'll get alerts even when app is closed" : "Notifications enabled");
+    }
   };
 
 
