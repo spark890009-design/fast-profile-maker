@@ -20,20 +20,31 @@ function bufToB64(buf: ArrayBuffer | null) {
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
+function keysMatch(left: ArrayBuffer | null, right: Uint8Array) {
+  if (!left) return false;
+  const current = new Uint8Array(left);
+  return current.length === right.length && current.every((value, index) => value === right[index]);
+}
+
 export async function registerPush(userId: string): Promise<boolean> {
   if (typeof window === "undefined") return false;
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) return false;
   try {
     const reg = await navigator.serviceWorker.register("/sw.js");
-    await navigator.serviceWorker.ready;
+    await reg.update();
 
     let sub = await reg.pushManager.getSubscription();
+    const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+    if (sub && !keysMatch(sub.options.applicationServerKey, applicationServerKey)) {
+      await sub.unsubscribe();
+      sub = null;
+    }
     if (!sub) {
       const perm = await Notification.requestPermission();
       if (perm !== "granted") return false;
       sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        applicationServerKey,
       });
     }
 
@@ -42,10 +53,11 @@ export async function registerPush(userId: string): Promise<boolean> {
     const p256dh = json.keys?.p256dh ?? bufToB64(sub.getKey("p256dh"));
     const auth = json.keys?.auth ?? bufToB64(sub.getKey("auth"));
 
-    await supabase.from("push_subscriptions").upsert(
+    const { error } = await supabase.from("push_subscriptions").upsert(
       { user_id: userId, endpoint, p256dh, auth, user_agent: navigator.userAgent },
       { onConflict: "endpoint" },
     );
+    if (error) throw error;
     return true;
   } catch (e) {
     console.error("push register failed", e);

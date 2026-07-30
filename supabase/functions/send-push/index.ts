@@ -33,6 +33,8 @@ Deno.serve(async (req) => {
 
     const payload = JSON.stringify({ title: title ?? "SPARK WALLET", body: message ?? "", id });
     const deadIds: string[] = [];
+    let delivered = 0;
+    let failed = 0;
 
     await Promise.all(
       (subs ?? []).map(async (s) => {
@@ -41,15 +43,17 @@ Deno.serve(async (req) => {
             { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
             payload,
           );
+          delivered += 1;
         } catch (e: any) {
-          if (e?.statusCode === 404 || e?.statusCode === 410) deadIds.push(s.id);
-          else console.error("push error", e?.statusCode, e?.body);
+          failed += 1;
+          if ([400, 401, 403, 404, 410].includes(e?.statusCode)) deadIds.push(s.id);
+          console.error("push delivery failed", s.id, e?.statusCode, e?.body);
         }
       }),
     );
     if (deadIds.length) await supabase.from("push_subscriptions").delete().in("id", deadIds);
 
-    return new Response(JSON.stringify({ sent: (subs ?? []).length, removed: deadIds.length }), {
+    return new Response(JSON.stringify({ attempted: (subs ?? []).length, delivered, failed, removed: deadIds.length }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e: any) {

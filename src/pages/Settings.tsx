@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, Bell, BellRing, Check, Loader2, Trash2, Volume2 } from "lucide-react";
 import { AVATAR_PRESETS, getAvatar, setAvatar, clearAvatar } from "@/lib/avatars";
 import { isSoundEnabled, playRing, primeSound, setSoundEnabled } from "@/lib/sound";
+import { registerPush } from "@/lib/push";
 import { toast } from "sonner";
 
 const Settings = () => {
@@ -136,7 +137,11 @@ const Settings = () => {
                   if (!("Notification" in window)) return toast.error("Not supported");
                   const p = await Notification.requestPermission();
                   setBrowserPerm(p);
-                  if (p === "granted") toast.success("Notifications enabled");
+                   if (p === "granted") {
+                     const registered = await registerPush(uid);
+                     if (registered) toast.success("Notifications enabled for this device");
+                     else toast.error("Device registration failed. Please try again.");
+                   }
                   else toast.error("Blocked. Enable from browser settings.");
                 }}
               >
