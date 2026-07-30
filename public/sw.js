@@ -11,11 +11,13 @@ self.addEventListener("push", (event) => {
     body: data.body,
     icon: "/icon-512.png",
     badge: "/icon-512.png",
+    lang: "en-IN",
     vibrate: [200, 100, 200, 100, 200],
     tag: data.id || "spark-notify",
     renotify: true,
-    requireInteraction: false,
+    requireInteraction: true,
     data: { url: "/notifications" },
+    actions: [{ action: "open", title: "View update" }],
   };
   event.waitUntil(self.registration.showNotification(data.title, options));
 });
