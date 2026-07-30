@@ -16,6 +16,7 @@ self.addEventListener("push", (event) => {
     tag: data.id || "spark-notify",
     renotify: true,
     requireInteraction: true,
+    silent: false,
     data: { url: "/notifications" },
     actions: [{ action: "open", title: "View update" }],
   };
