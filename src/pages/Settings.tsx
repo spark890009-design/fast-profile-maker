@@ -14,7 +14,7 @@ const Settings = () => {
   const { session, ready } = useAuthGuard();
   const nav = useNavigate();
   const [selected, setSelected] = useState<string | null>(null);
-  const [sound, setSound] = useState(false);
+  const [sound, setSound] = useState(true);
   const [browserPerm, setBrowserPerm] = useState<NotificationPermission>("default");
 
   useEffect(() => {
@@ -149,7 +149,7 @@ const Settings = () => {
               </Button>
             </div>
 
-            <Button variant="secondary" size="sm" onClick={() => { primeSound(); playRing("success"); }}>
+            <Button variant="secondary" size="sm" onClick={() => { primeSound(); void playRing("success"); }}>
               <Volume2 className="w-4 h-4 mr-1" /> Test ring
             </Button>
           </CardContent>
