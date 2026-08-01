@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -48,6 +66,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          joined_group: boolean
           mobile: string
           updated_at: string
           user_id: string
@@ -58,6 +77,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          joined_group?: boolean
           mobile: string
           updated_at?: string
           user_id: string
@@ -68,6 +88,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          joined_group?: boolean
           mobile?: string
           updated_at?: string
           user_id?: string
@@ -251,6 +272,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_primary_admin: { Args: { _user_id: string }; Returns: boolean }
       request_withdrawal: {
         Args: { _amount: number; _upi_id: string }
         Returns: string
