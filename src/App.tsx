@@ -17,6 +17,7 @@ import Transactions from "./pages/Transactions";
 import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 import { installSoundUnlock } from "@/lib/sound";
+import GroupGate from "@/components/GroupGate";
 
 const queryClient = new QueryClient();
 
@@ -32,13 +33,13 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/withdraw" element={<Withdraw />} />
+          <Route path="/dashboard" element={<GroupGate><Dashboard /></GroupGate>} />
+          <Route path="/withdraw" element={<GroupGate><Withdraw /></GroupGate>} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/transactions" element={<Transactions />} />
-          <Route path="/support" element={<Support />} />
+          <Route path="/notifications" element={<GroupGate><Notifications /></GroupGate>} />
+          <Route path="/settings" element={<GroupGate><Settings /></GroupGate>} />
+          <Route path="/transactions" element={<GroupGate><Transactions /></GroupGate>} />
+          <Route path="/support" element={<GroupGate><Support /></GroupGate>} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
