@@ -5,6 +5,7 @@ import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Bell, Loader2, CheckCircle2, XCircle, Info } from "lucide-react";
+import { jsPDF } from "jspdf";
 
 interface Notification {
   id: string;
@@ -58,6 +59,20 @@ const Notifications = () => {
     return <Info className="w-5 h-5 text-primary" />;
   };
 
+  const downloadReceipt = (notification: Notification) => {
+    const pdf = new jsPDF();
+    pdf.setFontSize(20);
+    pdf.text("SPARK WALLET", 20, 24);
+    pdf.setFontSize(14);
+    pdf.text("Withdrawal Receipt", 20, 36);
+    pdf.setFontSize(11);
+    pdf.text(`Status: Approved`, 20, 52);
+    pdf.text(`Date: ${new Date(notification.created_at).toLocaleString()}`, 20, 62);
+    pdf.text(pdf.splitTextToSize(notification.message, 170), 20, 76);
+    pdf.text(`Reference: ${notification.id}`, 20, 104);
+    pdf.save(`spark-wallet-receipt-${notification.id.slice(0, 8)}.pdf`);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <nav className="border-b border-border bg-card">
@@ -88,6 +103,7 @@ const Notifications = () => {
                   <div className="font-semibold text-sm">{n.title}</div>
                   <div className="text-sm text-muted-foreground break-words">{n.message}</div>
                   <div className="text-xs text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString()}</div>
+                  {n.title.toLowerCase().includes("withdrawal approved") && <Button variant="outline" size="sm" className="mt-2" onClick={() => downloadReceipt(n)}>Download receipt</Button>}
                 </div>
               </div>
             ))}
