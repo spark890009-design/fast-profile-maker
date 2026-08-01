@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ArrowLeft, Ban, CheckCircle2, XCircle, Plus, Minus, Send, Loader2 } from "lucide-react";
+import { ArrowLeft, Ban, CheckCircle2, XCircle, Plus, Minus, Send, Loader2, Users, Wallet, Clock, IndianRupee, Headphones } from "lucide-react";
 
 interface UserRow {
   id: string; user_id: string; full_name: string; email: string; mobile: string; blocked: boolean;
@@ -20,6 +20,7 @@ interface Wd {
   id: string; user_id: string; upi_id: string; amount: number; status: string; created_at: string;
   profiles?: { full_name: string; user_id: string } | null;
 }
+interface Ticket { id: string; user_id: string; subject: string; message: string; status: string; admin_reply: string | null; created_at: string; }
 
 const Admin = () => {
   const { ready, isAdmin } = useAuthGuard(true);
@@ -28,12 +29,14 @@ const Admin = () => {
   const [withdrawals, setWithdrawals] = useState<Wd[]>([]);
   const [busy, setBusy] = useState(false);
   const [search, setSearch] = useState("");
+  const [tickets, setTickets] = useState<Ticket[]>([]);
 
   const loadAll = useCallback(async () => {
-    const [{ data: profiles }, { data: wallets }, { data: wds }] = await Promise.all([
+    const [{ data: profiles }, { data: wallets }, { data: wds }, { data: support }] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("wallets").select("user_id,balance"),
       supabase.from("withdrawals").select("*").order("created_at", { ascending: false }),
+      supabase.from("support_tickets").select("*").order("created_at", { ascending: false }),
     ]);
     const balMap = new Map((wallets ?? []).map((w) => [w.user_id, Number(w.balance)]));
     const profMap = new Map(((profiles ?? []) as UserRow[]).map((p) => [p.id, p]));
@@ -42,6 +45,7 @@ const Admin = () => {
       const p = profMap.get(w.user_id);
       return { ...w, profiles: p ? { full_name: p.full_name, user_id: p.user_id } : null };
     }));
+    setTickets((support ?? []) as Ticket[]);
   }, []);
 
   useEffect(() => { if (ready && isAdmin) loadAll(); }, [ready, isAdmin, loadAll]);
@@ -114,10 +118,20 @@ const Admin = () => {
     toast.success("Notification sent");
   };
 
+  const replyTicket = async (ticket: Ticket, reply: string) => {
+    if (reply.trim().length < 2) return toast.error("Reply required");
+    const { error } = await supabase.from("support_tickets").update({ admin_reply: reply.trim(), status: "answered" }).eq("id", ticket.id);
+    if (error) return toast.error(error.message);
+    await supabase.from("notifications").insert({ user_id: ticket.user_id, title: "Support Reply", message: `Admin replied to “${ticket.subject}”: ${reply.trim()}` });
+    toast.success("Reply sent"); void loadAll();
+  };
+
   if (!ready) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>;
 
   const pending = withdrawals.filter((w) => w.status === "pending");
   const resolved = withdrawals.filter((w) => w.status !== "pending");
+  const totalBalance = users.reduce((sum, user) => sum + Number(user.balance ?? 0), 0);
+  const approvedAmount = withdrawals.filter((w) => w.status === "approved").reduce((sum, w) => sum + Number(w.amount), 0);
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -130,11 +144,18 @@ const Admin = () => {
           <BroadcastDialog onSend={(t, m) => sendNotification(null, t, m)} />
         </div>
 
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          <Stat icon={<Users />} label="Total Users" value={users.length.toString()} />
+          <Stat icon={<Wallet />} label="Wallet Balance" value={`₹${totalBalance.toFixed(2)}`} />
+          <Stat icon={<Clock />} label="Pending" value={pending.length.toString()} />
+          <Stat icon={<IndianRupee />} label="Approved" value={`₹${approvedAmount.toFixed(2)}`} />
+        </div>
         <Tabs defaultValue="users">
           <TabsList>
             <TabsTrigger value="users">Users ({users.length})</TabsTrigger>
             <TabsTrigger value="pending">Pending ({pending.length})</TabsTrigger>
             <TabsTrigger value="resolved">Resolved ({resolved.length})</TabsTrigger>
+            <TabsTrigger value="support">Support ({tickets.filter((t) => t.status === "open").length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="space-y-2 mt-4">
@@ -208,11 +229,24 @@ const Admin = () => {
               </Card>
             ))}
           </TabsContent>
+          <TabsContent value="support" className="space-y-2 mt-4">
+            {tickets.length === 0 && <p className="text-muted-foreground">No support tickets.</p>}
+            {tickets.map((ticket) => <Card key={ticket.id}><CardContent className="p-4"><div className="flex items-start justify-between gap-3"><div><div className="font-semibold flex items-center gap-2"><Headphones className="w-4 h-4 text-primary" />{ticket.subject}</div><p className="text-sm text-muted-foreground mt-1">{ticket.message}</p><p className="text-xs text-muted-foreground mt-2">{new Date(ticket.created_at).toLocaleString()}</p></div><Badge variant="outline">{ticket.status}</Badge></div>{ticket.admin_reply && <p className="text-sm bg-primary/10 p-2 rounded mt-3"><b>Reply:</b> {ticket.admin_reply}</p>}<TicketReply ticket={ticket} onReply={replyTicket} /></CardContent></Card>)}
+          </TabsContent>
         </Tabs>
       </div>
     </div>
   );
 };
+
+function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return <Card><CardContent className="p-4 flex items-center gap-3"><div className="text-primary [&>svg]:w-5 [&>svg]:h-5">{icon}</div><div><p className="text-xs text-muted-foreground">{label}</p><p className="font-bold">{value}</p></div></CardContent></Card>;
+}
+
+function TicketReply({ ticket, onReply }: { ticket: Ticket; onReply: (ticket: Ticket, reply: string) => void }) {
+  const [reply, setReply] = useState(ticket.admin_reply ?? "");
+  return <div className="flex gap-2 mt-3"><Input placeholder="Write reply..." value={reply} onChange={(e) => setReply(e.target.value)} /><Button size="sm" onClick={() => onReply(ticket, reply)}><Send className="w-4 h-4 mr-1" /> Reply</Button></div>;
+}
 
 function AdjustDialog({ user, onAdjust }: { user: UserRow; onAdjust: (u: UserRow, delta: number, note: string) => void }) {
   const [amt, setAmt] = useState("");

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User, Settings as SettingsIcon } from "lucide-react";
+import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User, Settings as SettingsIcon, ReceiptText, Headphones } from "lucide-react";
 import { toast } from "sonner";
 import WalletOrb3D from "@/components/WalletOrb3D";
 import { getAvatar } from "@/lib/avatars";
@@ -240,6 +240,10 @@ const Dashboard = () => {
               ))}
             </CardContent>
           </Card>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Button variant="outline" className="h-14 justify-start" onClick={() => nav("/transactions")}><ReceiptText className="w-5 h-5 mr-2 text-primary" /> Transactions</Button>
+          <Button variant="outline" className="h-14 justify-start" onClick={() => nav("/support")}><Headphones className="w-5 h-5 mr-2 text-primary" /> Help & Support</Button>
         </div>
       </main>
     </div>

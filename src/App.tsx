@@ -13,6 +13,8 @@ import Withdraw from "./pages/Withdraw";
 import Admin from "./pages/Admin";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
+import Transactions from "./pages/Transactions";
+import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 import { installSoundUnlock } from "@/lib/sound";
 
@@ -35,6 +37,8 @@ const App = () => {
           <Route path="/admin" element={<Admin />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/transactions" element={<Transactions />} />
+          <Route path="/support" element={<Support />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
