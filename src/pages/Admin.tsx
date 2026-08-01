@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ArrowLeft, Ban, CheckCircle2, XCircle, Plus, Minus, Send, Loader2, Users, Wallet, Clock, IndianRupee, Headphones } from "lucide-react";
+import { ArrowLeft, Ban, CheckCircle2, XCircle, Plus, Minus, Send, Loader2, Users, Wallet, Clock, IndianRupee, Headphones, ShieldCheck, ShieldOff, Link2 } from "lucide-react";
 
 interface UserRow {
   id: string; user_id: string; full_name: string; email: string; mobile: string; blocked: boolean;
@@ -30,14 +30,20 @@ const Admin = () => {
   const [busy, setBusy] = useState(false);
   const [search, setSearch] = useState("");
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [adminIds, setAdminIds] = useState<string[]>([]);
+  const [groupLink, setGroupLink] = useState("");
 
   const loadAll = useCallback(async () => {
-    const [{ data: profiles }, { data: wallets }, { data: wds }, { data: support }] = await Promise.all([
+    const [{ data: profiles }, { data: wallets }, { data: wds }, { data: support }, { data: roles }, { data: cfg }] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("wallets").select("user_id,balance"),
       supabase.from("withdrawals").select("*").order("created_at", { ascending: false }),
       supabase.from("support_tickets").select("*").order("created_at", { ascending: false }),
+      supabase.from("user_roles").select("user_id,role").eq("role", "admin"),
+      supabase.from("app_settings").select("value").eq("key", "group_link").maybeSingle(),
     ]);
+    setAdminIds((roles ?? []).map((r) => r.user_id));
+    setGroupLink(cfg?.value ?? "");
     const balMap = new Map((wallets ?? []).map((w) => [w.user_id, Number(w.balance)]));
     const profMap = new Map(((profiles ?? []) as UserRow[]).map((p) => [p.id, p]));
     setUsers(((profiles ?? []) as UserRow[]).map((p) => ({ ...p, balance: balMap.get(p.id) ?? 0 })));
@@ -111,6 +117,33 @@ const Admin = () => {
     loadAll();
   };
 
+  const PRIMARY_ADMIN_EMAIL = "rajpandey565758@gmail.com";
+  const isPrimary = (u: UserRow) => u.email?.toLowerCase() === PRIMARY_ADMIN_EMAIL;
+
+  const setAdminRole = async (u: UserRow, make: boolean) => {
+    if (isPrimary(u) && !make) return toast.error("Primary admin cannot be removed");
+    setBusy(true);
+    const { error } = make
+      ? await supabase.from("user_roles").insert({ user_id: u.id, role: "admin" })
+      : await supabase.from("user_roles").delete().eq("user_id", u.id).eq("role", "admin");
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    await supabase.from("notifications").insert({
+      user_id: u.id,
+      title: make ? "Admin Access Granted" : "Admin Access Removed",
+      message: make ? "You are now an admin of SPARK WALLET." : "Your admin access has been removed.",
+    });
+    toast.success(make ? "Admin access granted" : "Admin access removed");
+    loadAll();
+  };
+
+  const saveGroupLink = async (value: string) => {
+    const { error } = await supabase.from("app_settings").update({ value: value.trim() }).eq("key", "group_link");
+    if (error) return toast.error(error.message);
+    toast.success("Group link saved");
+    setGroupLink(value.trim());
+  };
+
   const sendNotification = async (userId: string | null, title: string, message: string) => {
     if (!title || !message) return toast.error("Title and message required");
     const { error } = await supabase.from("notifications").insert({ user_id: userId, title, message });
@@ -150,6 +183,14 @@ const Admin = () => {
           <Stat icon={<Clock />} label="Pending" value={pending.length.toString()} />
           <Stat icon={<IndianRupee />} label="Approved" value={`₹${approvedAmount.toFixed(2)}`} />
         </div>
+        <Card className="mb-4">
+          <CardContent className="p-4 flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+            <div className="flex items-center gap-2 text-sm font-medium min-w-[140px]"><Link2 className="w-4 h-4 text-primary" /> Group Link</div>
+            <Input value={groupLink} onChange={(e) => setGroupLink(e.target.value)} placeholder="https://chat.whatsapp.com/..." />
+            <Button onClick={() => saveGroupLink(groupLink)}>Save</Button>
+          </CardContent>
+        </Card>
+
         <Tabs defaultValue="users">
           <TabsList>
             <TabsTrigger value="users">Users ({users.length})</TabsTrigger>
@@ -183,11 +224,22 @@ const Admin = () => {
                     <div className="font-semibold">{u.full_name} <span className="font-mono text-xs text-muted-foreground">({u.user_id})</span></div>
                     <div className="text-sm text-muted-foreground">{u.email} · {u.mobile}</div>
                     <div className="text-sm">Balance: <span className="font-bold text-primary">₹{(u.balance ?? 0).toFixed(2)}</span></div>
-                    {u.blocked && <Badge variant="destructive" className="mt-1">Blocked</Badge>}
+                    <div className="flex gap-1 mt-1">
+                      {u.blocked && <Badge variant="destructive">Blocked</Badge>}
+                      {isPrimary(u) && <Badge className="bg-primary text-primary-foreground">Primary Admin</Badge>}
+                      {!isPrimary(u) && adminIds.includes(u.id) && <Badge variant="secondary">Admin</Badge>}
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <AdjustDialog user={u} onAdjust={adjustBalance} />
                     <NotifyDialog onSend={(t, m) => sendNotification(u.id, t, m)} />
+                    {isPrimary(u) ? (
+                      <Button size="sm" variant="outline" disabled><ShieldCheck className="w-4 h-4 mr-1" /> Primary Admin</Button>
+                    ) : adminIds.includes(u.id) ? (
+                      <Button size="sm" variant="outline" onClick={() => setAdminRole(u, false)} disabled={busy}><ShieldOff className="w-4 h-4 mr-1" /> Remove Admin</Button>
+                    ) : (
+                      <Button size="sm" variant="outline" onClick={() => setAdminRole(u, true)} disabled={busy}><ShieldCheck className="w-4 h-4 mr-1" /> Make Admin</Button>
+                    )}
                     <Button size="sm" variant={u.blocked ? "outline" : "destructive"} onClick={() => toggleBlock(u)} disabled={busy}>
                       <Ban className="w-4 h-4 mr-1" /> {u.blocked ? "Unblock" : "Block"}
                     </Button>
