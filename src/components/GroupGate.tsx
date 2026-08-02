@@ -20,11 +20,13 @@ export const GroupGate = ({ children }: Props) => {
     const id = s.session?.user.id ?? null;
     setUid(id);
     if (!id) { setLoading(false); return; }
-    const [p, cfg] = await Promise.all([
+    const [p, cfg, roles] = await Promise.all([
       supabase.from("profiles").select("joined_group").eq("id", id).maybeSingle(),
       supabase.from("app_settings").select("value").eq("key", "group_link").maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", id),
     ]);
-    setJoined(!!p.data?.joined_group);
+    const isAdmin = !!roles.data?.some((r) => r.role === "admin");
+    setJoined(isAdmin || !!p.data?.joined_group);
     setLink(cfg.data?.value ?? "");
     setLoading(false);
   }, []);
