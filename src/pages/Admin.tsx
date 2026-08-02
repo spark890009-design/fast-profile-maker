@@ -23,7 +23,7 @@ interface Wd {
 interface Ticket { id: string; user_id: string; subject: string; message: string; status: string; admin_reply: string | null; created_at: string; }
 
 const Admin = () => {
-  const { ready, isAdmin } = useAuthGuard(true);
+  const { ready, isAdmin, session } = useAuthGuard(true);
   const nav = useNavigate();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [withdrawals, setWithdrawals] = useState<Wd[]>([]);
@@ -183,13 +183,15 @@ const Admin = () => {
           <Stat icon={<Clock />} label="Pending" value={pending.length.toString()} />
           <Stat icon={<IndianRupee />} label="Approved" value={`₹${approvedAmount.toFixed(2)}`} />
         </div>
-        <Card className="mb-4">
-          <CardContent className="p-4 flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-            <div className="flex items-center gap-2 text-sm font-medium min-w-[140px]"><Link2 className="w-4 h-4 text-primary" /> Group Link</div>
-            <Input value={groupLink} onChange={(e) => setGroupLink(e.target.value)} placeholder="https://chat.whatsapp.com/..." />
-            <Button onClick={() => saveGroupLink(groupLink)}>Save</Button>
-          </CardContent>
-        </Card>
+        {session?.user.email?.toLowerCase() === PRIMARY_ADMIN_EMAIL && (
+          <Card className="mb-4">
+            <CardContent className="p-4 flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+              <div className="flex items-center gap-2 text-sm font-medium min-w-[140px]"><Link2 className="w-4 h-4 text-primary" /> Group Link</div>
+              <Input value={groupLink} onChange={(e) => setGroupLink(e.target.value)} placeholder="https://chat.whatsapp.com/..." />
+              <Button onClick={() => saveGroupLink(groupLink)}>Save</Button>
+            </CardContent>
+          </Card>
+        )}
 
         <Tabs defaultValue="users">
           <TabsList>
