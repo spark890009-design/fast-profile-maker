@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ArrowLeft, Ban, CheckCircle2, XCircle, Plus, Minus, Send, Loader2, Users, Wallet, Clock, IndianRupee, Headphones, ShieldCheck, ShieldOff, Link2 } from "lucide-react";
+import { ArrowLeft, Ban, CheckCircle2, XCircle, Plus, Minus, Send, Loader2, Users, Wallet, Clock, IndianRupee, Headphones, ShieldCheck, ShieldOff, Link2, BellRing } from "lucide-react";
 
 interface UserRow {
   id: string; user_id: string; full_name: string; email: string; mobile: string; blocked: boolean;
@@ -151,6 +151,30 @@ const Admin = () => {
     toast.success("Notification sent");
   };
 
+  const ringUser = async (u: UserRow) => {
+    setBusy(true);
+    const { error } = await supabase.from("notifications").insert({
+      user_id: u.id,
+      title: "🔔 Ring Alert",
+      message: `Admin is ringing your phone, ${u.full_name || "user"}. Please open SPARK WALLET.`,
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(`Ringing ${u.full_name || u.user_id}`);
+  };
+
+  const ringAll = async () => {
+    setBusy(true);
+    const { error } = await supabase.from("notifications").insert({
+      user_id: null,
+      title: "🔔 Ring Alert",
+      message: "Admin is ringing all users. Please open SPARK WALLET.",
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Ringing all users");
+  };
+
   const replyTicket = async (ticket: Ticket, reply: string) => {
     if (reply.trim().length < 2) return toast.error("Reply required");
     const { error } = await supabase.from("support_tickets").update({ admin_reply: reply.trim(), status: "answered" }).eq("id", ticket.id);
@@ -174,7 +198,8 @@ const Admin = () => {
             <Button variant="ghost" size="sm" onClick={() => nav("/dashboard")}><ArrowLeft className="w-4 h-4 mr-1" /> Back</Button>
             <h1 className="text-2xl font-bold text-gradient">Admin Panel</h1>
           </div>
-          <BroadcastDialog onSend={(t, m) => sendNotification(null, t, m)} />
+          <Button variant="outline" onClick={ringAll} disabled={busy}><BellRing className="w-4 h-4 mr-1" /> Ring All</Button>
+            <BroadcastDialog onSend={(t, m) => sendNotification(null, t, m)} />
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
@@ -235,6 +260,9 @@ const Admin = () => {
                   <div className="flex flex-wrap gap-2">
                     <AdjustDialog user={u} onAdjust={adjustBalance} />
                     <NotifyDialog onSend={(t, m) => sendNotification(u.id, t, m)} />
+                    <Button size="sm" variant="outline" onClick={() => ringUser(u)} disabled={busy} title="Ring this user's phone">
+                      <BellRing className="w-4 h-4 mr-1" /> Ring
+                    </Button>
                     {isPrimary(u) ? (
                       <Button size="sm" variant="outline" disabled><ShieldCheck className="w-4 h-4 mr-1" /> Primary Admin</Button>
                     ) : adminIds.includes(u.id) ? (
