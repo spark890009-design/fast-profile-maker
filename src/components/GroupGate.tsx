@@ -12,8 +12,11 @@ export const GroupGate = ({ children }: Props) => {
   const [joined, setJoined] = useState(true);
   const [link, setLink] = useState("");
   const [uid, setUid] = useState<string | null>(null);
-  const [opened, setOpened] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  const groupUrl = link
+    ? (/^https?:\/\//i.test(link) ? link : `https://${link}`)
+    : "";
 
   const load = useCallback(async () => {
     const { data: s } = await supabase.auth.getSession();
@@ -63,10 +66,10 @@ export const GroupGate = ({ children }: Props) => {
             </p>
           </div>
 
-          {link ? (
+          {groupUrl ? (
             <Button
               className="w-full"
-              onClick={() => { window.open(link, "_blank", "noopener,noreferrer"); setOpened(true); }}
+              onClick={() => window.open(groupUrl, "_blank", "noopener,noreferrer")}
             >
               <ExternalLink className="w-4 h-4 mr-2" /> Join This Group
             </Button>
@@ -74,11 +77,10 @@ export const GroupGate = ({ children }: Props) => {
             <p className="text-sm text-destructive">Group link not set yet. Please contact admin.</p>
           )}
 
-          <Button variant="outline" className="w-full" disabled={!opened || busy} onClick={confirmJoin}>
+          <Button variant="outline" className="w-full" disabled={busy || !groupUrl} onClick={confirmJoin}>
             {busy ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
             I have joined — Continue
           </Button>
-          {!opened && link && <p className="text-xs text-muted-foreground">Tap “Join This Group” first to continue.</p>}
 
           <Button variant="ghost" size="sm" className="w-full" onClick={() => supabase.auth.signOut()}>Logout</Button>
         </CardContent>
