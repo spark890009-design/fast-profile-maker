@@ -10,7 +10,7 @@ import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User, Settings as 
 import { toast } from "sonner";
 import WalletOrb3D from "@/components/WalletOrb3D";
 import { getAvatar } from "@/lib/avatars";
-import { isSoundEnabled, playRing } from "@/lib/sound";
+import { isSoundEnabled, playRing, playRingtone } from "@/lib/sound";
 import { registerPush } from "@/lib/push";
 
 interface Profile { user_id: string; full_name: string; email: string; mobile: string; blocked: boolean; }
@@ -73,7 +73,9 @@ const Dashboard = () => {
           setLatest(row);
           toast.message(row.title, { description: row.message });
           notify(row.title, row.message);
-          if (isSoundEnabled()) {
+          if (/ring alert/i.test(row.title)) {
+            void playRingtone();
+          } else if (isSoundEnabled()) {
             const t = (row.title + " " + row.message).toLowerCase();
             const variant: "success" | "error" | "info" =
               /approve|credit|success/.test(t) ? "success"

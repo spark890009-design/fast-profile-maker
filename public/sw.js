@@ -7,12 +7,13 @@ self.addEventListener("push", (event) => {
   try { if (event.data) data = { ...data, ...event.data.json() }; }
   catch { if (event.data) data.body = event.data.text(); }
 
+  const isRing = /ring alert/i.test(data.title || "");
   const options = {
     body: data.body,
     icon: "/icon-512.png",
     badge: "/icon-512.png",
     lang: "en-IN",
-    vibrate: [200, 100, 200, 100, 200],
+    vibrate: isRing ? [500, 200, 500, 200, 500, 200, 500] : [200, 100, 200, 100, 200],
     tag: data.id || "spark-notify",
     renotify: true,
     requireInteraction: true,

@@ -87,3 +87,32 @@ export const playRing = async (variant: Variant = "info") => {
   });
   return true;
 };
+
+// Loud repeating "phone ring" used when an admin rings the user on demand.
+// Ignores the sound preference on purpose — this is an attention alert.
+export const playRingtone = async (repeats = 6) => {
+  const c = await getCtx();
+  if (!c) return false;
+  for (let i = 0; i < repeats; i++) {
+    const start = c.currentTime + i * 0.75;
+    const master = c.createGain();
+    master.gain.value = 0.0001;
+    master.connect(c.destination);
+    master.gain.exponentialRampToValueAtTime(0.9, start + 0.02);
+    master.gain.exponentialRampToValueAtTime(0.0001, start + 0.6);
+    [1046, 1568].forEach((freq, idx) => {
+      const osc = c.createOscillator();
+      const g = c.createGain();
+      osc.type = "triangle";
+      osc.frequency.value = freq;
+      g.gain.value = 0.6;
+      osc.connect(g).connect(master);
+      osc.start(start + idx * 0.15);
+      osc.stop(start + idx * 0.15 + 0.4);
+    });
+  }
+  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+    navigator.vibrate([400, 200, 400, 200, 400, 200, 400]);
+  }
+  return true;
+};
