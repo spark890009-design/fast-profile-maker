@@ -31,7 +31,8 @@ Deno.serve(async (req) => {
       : await q;
     if (error) throw error;
 
-    const payload = JSON.stringify({ title: title ?? "SPARK WALLET", body: message ?? "", id });
+    const isRing = /ring alert/i.test(title ?? "");
+    const payload = JSON.stringify({ title: title ?? "SPARK WALLET", body: message ?? "", id, isRing });
     const deadIds: string[] = [];
     let delivered = 0;
     let failed = 0;
@@ -42,6 +43,7 @@ Deno.serve(async (req) => {
           await webpush.sendNotification(
             { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
             payload,
+            { TTL: isRing ? 60 : 86400, urgency: isRing ? "high" : "normal" },
           );
           delivered += 1;
         } catch (e: any) {

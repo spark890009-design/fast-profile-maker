@@ -10,7 +10,6 @@ import { Wallet, LogOut, ArrowUpRight, Bell, Shield, Loader2, User, Settings as 
 import { toast } from "sonner";
 import WalletOrb3D from "@/components/WalletOrb3D";
 import { getAvatar } from "@/lib/avatars";
-import { isSoundEnabled, playRing, playRingtone } from "@/lib/sound";
 import { registerPush } from "@/lib/push";
 
 interface Profile { user_id: string; full_name: string; email: string; mobile: string; blocked: boolean; }
@@ -58,33 +57,15 @@ const Dashboard = () => {
     }
     registerPush(uid).catch(() => {});
 
-    const notify = (title: string, body: string) => {
-      if ("Notification" in window && Notification.permission === "granted") {
-        try { new Notification(title, { body, icon: "/favicon.ico" }); } catch { /* ignore */ }
-      }
+    const onNotification = (event: Event) => {
+      const row = (event as CustomEvent<Notification>).detail;
+      setNotifs((prev) => [row, ...prev.filter((item) => item.id !== row.id)].slice(0, 20));
+      setLatest(row);
     };
+    window.addEventListener("spark-notification", onNotification);
 
     const channel = supabase
       .channel("dashboard-updates")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, (payload) => {
-        const row = payload.new as Notification & { user_id: string | null };
-        if (row.user_id === uid || row.user_id === null) {
-          setNotifs((prev) => [row, ...prev].slice(0, 20));
-          setLatest(row);
-          toast.message(row.title, { description: row.message });
-          notify(row.title, row.message);
-          if (/ring alert/i.test(row.title)) {
-            void playRingtone();
-          } else if (isSoundEnabled()) {
-            const t = (row.title + " " + row.message).toLowerCase();
-            const variant: "success" | "error" | "info" =
-              /approve|credit|success/.test(t) ? "success"
-              : /reject|debit|block|fail/.test(t) ? "error"
-              : "info";
-            playRing(variant);
-          }
-        }
-      })
       .on("postgres_changes", { event: "*", schema: "public", table: "withdrawals" }, () => loadAll(uid))
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "wallets" }, (payload) => {
         const row = payload.new as { user_id: string; balance: number };
@@ -92,7 +73,11 @@ const Dashboard = () => {
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); window.removeEventListener("avatar-changed", onAv); };
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener("avatar-changed", onAv);
+      window.removeEventListener("spark-notification", onNotification);
+    };
   }, [session, loadAll]);
 
   const enableBrowserNotifications = async () => {
