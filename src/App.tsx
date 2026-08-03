@@ -18,6 +18,7 @@ import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 import { installSoundUnlock } from "@/lib/sound";
 import GroupGate from "@/components/GroupGate";
+import GlobalAlerts from "@/components/GlobalAlerts";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => {
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <GlobalAlerts />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />

@@ -49,7 +49,6 @@ const Auth = () => {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
         data: { full_name, mobile },
       },
     });
@@ -161,8 +160,8 @@ const Auth = () => {
                     <Input id="r-mobile" name="mobile" inputMode="numeric" maxLength={10} required />
                   </div>
                   <div>
-                    <Label htmlFor="r-password">Password</Label>
-                    <Input id="r-password" name="password" type="password" required />
+                    <Label htmlFor="r-password">Password (minimum 6 characters)</Label>
+                    <Input id="r-password" name="password" type="password" minLength={6} required />
                   </div>
                   <div>
                     <Label htmlFor="r-confirm">Confirm Password</Label>
