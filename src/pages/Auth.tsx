@@ -45,19 +45,7 @@ const Auth = () => {
     setLoading(true);
     const { full_name, email, mobile, password } = parsed.data;
 
-    // Uniqueness pre-check for friendly errors
-    const { data: dup } = await supabase
-      .from("profiles")
-      .select("id")
-      .or(`email.eq.${email},mobile.eq.${mobile}`)
-      .limit(1);
-    if (dup && dup.length > 0) {
-      toast.error("Email or mobile already registered");
-      setLoading(false);
-      return;
-    }
-
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -65,14 +53,25 @@ const Auth = () => {
         data: { full_name, mobile },
       },
     });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error(error.message);
       return;
     }
+
+    if (!signUpData.session) {
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) {
+        setLoading(false);
+        toast.error("Account banaya gaya. Ab login karein.");
+        return;
+      }
+    }
+    setLoading(false);
     toast.success("Account created! Redirecting…");
     nav("/dashboard", { replace: true });
   };
+
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
