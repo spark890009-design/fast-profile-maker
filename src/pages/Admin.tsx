@@ -107,11 +107,16 @@ const Admin = () => {
 
   const resolveWithdrawal = async (w: Wd, approve: boolean) => {
     setBusy(true);
+    const spkId = w.profiles?.user_id ?? "";
     if (approve) {
       // balance was already deducted at request time; just notify
+      const { data: wallet } = await supabase.from("wallets").select("balance").eq("user_id", w.user_id).maybeSingle();
       await supabase.from("notifications").insert({
         user_id: w.user_id, title: "Withdrawal Approved",
-        message: `Your withdrawal of ₹${w.amount} to ${w.upi_id} was approved.`,
+        message: bankMessage({
+          amount: Number(w.amount), credited: false, userId: spkId,
+          balance: Number(wallet?.balance ?? 0), note: `Withdrawal to ${w.upi_id} approved`,
+        }),
       });
     } else {
       // refund balance
@@ -125,9 +130,13 @@ const Admin = () => {
       });
       await supabase.from("notifications").insert({
         user_id: w.user_id, title: "Withdrawal Rejected",
-        message: `Your withdrawal of ₹${w.amount} to ${w.upi_id} was rejected. Amount refunded to wallet.`,
+        message: bankMessage({
+          amount: Number(w.amount), credited: true, userId: spkId, balance: refunded,
+          note: `Withdrawal to ${w.upi_id} rejected, amount refunded`,
+        }),
       });
     }
+
     const { error } = await supabase.from("withdrawals").update({ status: approve ? "approved" : "rejected" }).eq("id", w.id);
     setBusy(false);
     if (error) return toast.error(error.message);
