@@ -65,6 +65,23 @@ const Admin = () => {
     loadAll();
   };
 
+  const bankMessage = (opts: { amount: number; credited: boolean; userId: string; balance: number; note?: string }) => {
+    const now = new Date();
+    const date = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
+    const time = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+    const inr = (n: number) => n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return [
+      "Dear Customer,",
+      "",
+      `INR ${inr(Math.abs(opts.amount))} has been ${opts.credited ? "credited to" : "debited from"} User id ${opts.userId} on ${date} at ${time} via UPI.`,
+      "",
+      `Available Balance: INR ${inr(opts.balance)}`,
+      opts.note ? `\nNote: ${opts.note}` : "",
+      "",
+      "- SPARK WALLET",
+    ].join("\n");
+  };
+
   const adjustBalance = async (u: UserRow, delta: number, note: string) => {
     if (!delta) return;
     setBusy(true);
@@ -79,13 +96,14 @@ const Admin = () => {
     await supabase.from("notifications").insert({
       user_id: u.id,
       title: isCredit ? "Wallet Credited" : "Wallet Debited",
-      message: `Admin has ${isCredit ? "credited" : "debited"} ₹${Math.abs(delta).toFixed(2)} ${isCredit ? "to" : "from"} your wallet. New balance: ₹${newBal.toFixed(2)}.${note ? ` Note: ${note}` : ""}`,
+      message: bankMessage({ amount: delta, credited: isCredit, userId: u.user_id, balance: newBal, note }),
     });
     setBusy(false);
     toast.success("Balance updated");
     loadAll();
 
   };
+
 
   const resolveWithdrawal = async (w: Wd, approve: boolean) => {
     setBusy(true);
