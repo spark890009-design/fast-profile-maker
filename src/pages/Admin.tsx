@@ -65,6 +65,23 @@ const Admin = () => {
     loadAll();
   };
 
+  const bankMessage = (opts: { amount: number; credited: boolean; userId: string; balance: number; note?: string }) => {
+    const now = new Date();
+    const date = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
+    const time = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+    const inr = (n: number) => n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return [
+      "Dear Customer,",
+      "",
+      `INR ${inr(Math.abs(opts.amount))} has been ${opts.credited ? "credited to" : "debited from"} User id ${opts.userId} on ${date} at ${time} via UPI.`,
+      "",
+      `Available Balance: INR ${inr(opts.balance)}`,
+      opts.note ? `\nNote: ${opts.note}` : "",
+      "",
+      "- SPARK WALLET",
+    ].join("\n");
+  };
+
   const adjustBalance = async (u: UserRow, delta: number, note: string) => {
     if (!delta) return;
     setBusy(true);
@@ -79,7 +96,7 @@ const Admin = () => {
     await supabase.from("notifications").insert({
       user_id: u.id,
       title: isCredit ? "Wallet Credited" : "Wallet Debited",
-      message: `Admin has ${isCredit ? "credited" : "debited"} ₹${Math.abs(delta).toFixed(2)} ${isCredit ? "to" : "from"} your wallet. New balance: ₹${newBal.toFixed(2)}.${note ? ` Note: ${note}` : ""}`,
+      message: bankMessage({ amount: delta, credited: isCredit, userId: u.user_id, balance: newBal, note }),
     });
     setBusy(false);
     toast.success("Balance updated");
@@ -87,13 +104,19 @@ const Admin = () => {
 
   };
 
+
   const resolveWithdrawal = async (w: Wd, approve: boolean) => {
     setBusy(true);
+    const spkId = w.profiles?.user_id ?? "";
     if (approve) {
       // balance was already deducted at request time; just notify
+      const { data: wallet } = await supabase.from("wallets").select("balance").eq("user_id", w.user_id).maybeSingle();
       await supabase.from("notifications").insert({
         user_id: w.user_id, title: "Withdrawal Approved",
-        message: `Your withdrawal of ₹${w.amount} to ${w.upi_id} was approved.`,
+        message: bankMessage({
+          amount: Number(w.amount), credited: false, userId: spkId,
+          balance: Number(wallet?.balance ?? 0), note: `Withdrawal to ${w.upi_id} approved`,
+        }),
       });
     } else {
       // refund balance
@@ -107,9 +130,13 @@ const Admin = () => {
       });
       await supabase.from("notifications").insert({
         user_id: w.user_id, title: "Withdrawal Rejected",
-        message: `Your withdrawal of ₹${w.amount} to ${w.upi_id} was rejected. Amount refunded to wallet.`,
+        message: bankMessage({
+          amount: Number(w.amount), credited: true, userId: spkId, balance: refunded,
+          note: `Withdrawal to ${w.upi_id} rejected, amount refunded`,
+        }),
       });
     }
+
     const { error } = await supabase.from("withdrawals").update({ status: approve ? "approved" : "rejected" }).eq("id", w.id);
     setBusy(false);
     if (error) return toast.error(error.message);

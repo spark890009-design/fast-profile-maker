@@ -43,13 +43,16 @@ const GlobalAlerts = () => {
             return;
           }
           if (!isSoundEnabled()) return;
+          // Ring for every incoming update, then a short chime tail
+          void playRingtone(3);
           const text = `${row.title} ${row.message}`.toLowerCase();
           const variant = /approve|credit|success/.test(text)
             ? "success"
             : /reject|debit|block|fail/.test(text)
               ? "error"
               : "info";
-          void playRing(variant);
+          setTimeout(() => { void playRing(variant); }, 2400);
+
         })
         .subscribe();
     };
