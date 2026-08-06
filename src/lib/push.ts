@@ -78,7 +78,6 @@ export async function testDeviceNotification(): Promise<boolean> {
       badge: "/icon-512.png",
       tag: `spark-device-test-${Date.now()}`,
       requireInteraction: true,
-      vibrate: [400, 150, 400, 150, 400],
       data: { url: "/notifications" },
     });
     return true;
