@@ -13,7 +13,7 @@ self.addEventListener("push", (event) => {
     icon: "/icon-512.png",
     badge: "/icon-512.png",
     lang: "en-IN",
-    vibrate: isRing ? [500, 200, 500, 200, 500, 200, 500] : [200, 100, 200, 100, 200],
+    vibrate: isRing ? [500, 200, 500, 200, 500, 200, 500] : [400, 150, 400, 150, 400, 150, 400],
     tag: isRing ? `spark-ring-${data.id || Date.now()}` : (data.id || "spark-notify"),
     renotify: true,
     requireInteraction: true,
