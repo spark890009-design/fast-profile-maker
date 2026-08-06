@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, Bell, BellRing, Check, Loader2, Trash2, Volume2 } from "lucide-react";
 import { AVATAR_PRESETS, getAvatar, setAvatar, clearAvatar } from "@/lib/avatars";
 import { isSoundEnabled, playRing, primeSound, setSoundEnabled } from "@/lib/sound";
-import { registerPush } from "@/lib/push";
+import { registerPush, testDeviceNotification } from "@/lib/push";
 import { toast } from "sonner";
 
 const Settings = () => {
@@ -16,6 +16,7 @@ const Settings = () => {
   const [selected, setSelected] = useState<string | null>(null);
   const [sound, setSound] = useState(true);
   const [browserPerm, setBrowserPerm] = useState<NotificationPermission>("default");
+  const [registering, setRegistering] = useState(false);
 
   useEffect(() => {
     if (session) setSelected(getAvatar(session.user.id));
@@ -132,20 +133,33 @@ const Settings = () => {
               <Button
                 size="sm"
                 variant={browserPerm === "granted" ? "outline" : "default"}
-                disabled={browserPerm === "granted"}
+                disabled={registering}
                 onClick={async () => {
                   if (!("Notification" in window)) return toast.error("Not supported");
-                  const p = await Notification.requestPermission();
-                  setBrowserPerm(p);
-                   if (p === "granted") {
-                     const registered = await registerPush(uid);
-                     if (registered) toast.success("Notifications enabled for this device");
-                     else toast.error("Device registration failed. Please try again.");
-                   }
-                  else toast.error("Blocked. Enable from browser settings.");
+                  setRegistering(true);
+                  try {
+                    const p = Notification.permission === "granted"
+                      ? "granted"
+                      : await Notification.requestPermission();
+                    setBrowserPerm(p);
+                    if (p !== "granted") {
+                      toast.error("Blocked. Allow notifications in phone browser settings.");
+                      return;
+                    }
+                    const registered = await registerPush(uid);
+                    if (!registered) {
+                      toast.error("Device registration failed. Open this page in Chrome and retry.");
+                      return;
+                    }
+                    const tested = await testDeviceNotification();
+                    if (tested) toast.success("Test notification sent — device is connected");
+                    else toast.error("Phone blocked the test alert. Check Android notification settings.");
+                  } finally {
+                    setRegistering(false);
+                  }
                 }}
               >
-                {browserPerm === "granted" ? "Enabled" : "Allow"}
+                {registering ? <Loader2 className="w-4 h-4 animate-spin" /> : browserPerm === "granted" ? "Repair & Test" : "Allow & Test"}
               </Button>
             </div>
 
