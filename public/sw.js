@@ -12,13 +12,14 @@ self.addEventListener("push", (event) => {
     body: data.body,
     icon: "/icon-512.png",
     badge: "/icon-512.png",
+    timestamp: Date.now(),
     lang: "en-IN",
     vibrate: isRing ? [500, 200, 500, 200, 500, 200, 500] : [400, 150, 400, 150, 400, 150, 400],
     tag: isRing ? `spark-ring-${data.id || Date.now()}` : (data.id || "spark-notify"),
     renotify: true,
     requireInteraction: true,
     silent: false,
-    data: { url: "/notifications" },
+    data: { url: "/notifications", notificationId: data.id || null },
     actions: [{ action: "open", title: "View update" }],
   };
   event.waitUntil(self.registration.showNotification(data.title, options));

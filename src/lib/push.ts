@@ -30,8 +30,9 @@ export async function registerPush(userId: string): Promise<boolean> {
   if (typeof window === "undefined") return false;
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) return false;
   try {
-    const reg = await navigator.serviceWorker.register("/sw.js");
+    const reg = await navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" });
     await reg.update();
+    await navigator.serviceWorker.ready;
 
     let sub = await reg.pushManager.getSubscription();
     const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
@@ -61,6 +62,27 @@ export async function registerPush(userId: string): Promise<boolean> {
     return true;
   } catch (e) {
     console.error("push register failed", e);
+    return false;
+  }
+}
+
+export async function testDeviceNotification(): Promise<boolean> {
+  if (typeof window === "undefined" || !("serviceWorker" in navigator) || !("Notification" in window)) return false;
+  if (Notification.permission !== "granted") return false;
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    await reg.showNotification("SPARK WALLET notifications active", {
+      body: "Lock-screen alerts are enabled on this phone.",
+      icon: "/icon-512.png",
+      badge: "/icon-512.png",
+      tag: `spark-device-test-${Date.now()}`,
+      requireInteraction: true,
+      data: { url: "/notifications" },
+    });
+    return true;
+  } catch (error) {
+    console.error("device notification test failed", error);
     return false;
   }
 }
