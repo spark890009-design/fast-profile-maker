@@ -126,14 +126,14 @@ const Dashboard = () => {
             </Button>
 
             {isAdmin && (
-              <>
-                <Button variant="outline" size="sm" onClick={() => nav("/admin")}>
-                  <Shield className="w-4 h-4 mr-1" /> Admin
-                </Button>
-                <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); nav("/auth"); }} aria-label="Logout">
-                  <LogOut className="w-4 h-4" />
-                </Button>
-              </>
+              <Button variant="outline" size="sm" onClick={() => nav("/admin")}>
+                <Shield className="w-4 h-4 mr-1" /> Admin
+              </Button>
+            )}
+            {(isAdmin || profile?.logout_enabled) && (
+              <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); nav("/auth"); }} aria-label="Logout">
+                <LogOut className="w-4 h-4" />
+              </Button>
             )}
           </div>
         </div>
