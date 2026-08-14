@@ -310,6 +310,9 @@ const Admin = () => {
                     ) : (
                       <Button size="sm" variant="outline" onClick={() => setAdminRole(u, true)} disabled={busy}><ShieldCheck className="w-4 h-4 mr-1" /> Make Admin</Button>
                     )}
+                    <Button size="sm" variant="outline" onClick={() => toggleLogout(u)} disabled={busy} title="Show or hide the logout button for this user">
+                      <LogOut className="w-4 h-4 mr-1" /> {u.logout_enabled ? "Logout: ON" : "Logout: OFF"}
+                    </Button>
                     <Button size="sm" variant={u.blocked ? "outline" : "destructive"} onClick={() => toggleBlock(u)} disabled={busy}>
                       <Ban className="w-4 h-4 mr-1" /> {u.blocked ? "Unblock" : "Block"}
                     </Button>
