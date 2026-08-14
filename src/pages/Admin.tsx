@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ArrowLeft, Ban, CheckCircle2, XCircle, Plus, Minus, Send, Loader2, Users, Wallet, Clock, IndianRupee, Headphones, ShieldCheck, ShieldOff, Link2, BellRing } from "lucide-react";
+import { ArrowLeft, Ban, CheckCircle2, XCircle, Plus, Minus, Send, Loader2, Users, Wallet, Clock, IndianRupee, Headphones, ShieldCheck, ShieldOff, Link2, BellRing, LogOut } from "lucide-react";
 
 interface UserRow {
   id: string; user_id: string; full_name: string; email: string; mobile: string; blocked: boolean;
@@ -227,6 +227,9 @@ const Admin = () => {
           </div>
           <Button variant="outline" onClick={ringAll} disabled={busy}><BellRing className="w-4 h-4 mr-1" /> Ring All</Button>
             <BroadcastDialog onSend={(t, m) => sendNotification(null, t, m)} />
+          <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); nav("/auth"); }}>
+            <LogOut className="w-4 h-4 mr-1" /> Logout
+          </Button>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">

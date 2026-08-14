@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Wallet, ArrowUpRight, Bell, Shield, Loader2, User, Settings as SettingsIcon, ReceiptText, Headphones } from "lucide-react";
+import { Wallet, ArrowUpRight, Bell, Shield, Loader2, User, LogOut, Settings as SettingsIcon, ReceiptText, Headphones } from "lucide-react";
 import { toast } from "sonner";
 import WalletOrb3D from "@/components/WalletOrb3D";
 import { getAvatar } from "@/lib/avatars";
@@ -126,9 +126,14 @@ const Dashboard = () => {
             </Button>
 
             {isAdmin && (
-              <Button variant="outline" size="sm" onClick={() => nav("/admin")}>
-                <Shield className="w-4 h-4 mr-1" /> Admin
-              </Button>
+              <>
+                <Button variant="outline" size="sm" onClick={() => nav("/admin")}>
+                  <Shield className="w-4 h-4 mr-1" /> Admin
+                </Button>
+                <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); nav("/auth"); }} aria-label="Logout">
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </>
             )}
           </div>
         </div>
