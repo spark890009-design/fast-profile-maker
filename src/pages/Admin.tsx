@@ -66,6 +66,15 @@ const Admin = () => {
     loadAll();
   };
 
+  const toggleLogout = async (u: UserRow) => {
+    setBusy(true);
+    const { error } = await supabase.from("profiles").update({ logout_enabled: !u.logout_enabled }).eq("id", u.id);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(u.logout_enabled ? "Logout option disabled" : "Logout option enabled");
+    loadAll();
+  };
+
   const bankMessage = (opts: { amount: number; credited: boolean; userId: string; balance: number; note?: string }) => {
     const now = new Date();
     const date = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
