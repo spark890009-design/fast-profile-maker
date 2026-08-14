@@ -82,7 +82,7 @@ export const GroupGate = ({ children }: Props) => {
             I have joined — Continue
           </Button>
 
-          <Button variant="ghost" size="sm" className="w-full" onClick={() => supabase.auth.signOut()}>Logout</Button>
+          
         </CardContent>
       </Card>
     </div>
