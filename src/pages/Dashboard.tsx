@@ -12,7 +12,7 @@ import WalletOrb3D from "@/components/WalletOrb3D";
 import { getAvatar } from "@/lib/avatars";
 import { registerPush } from "@/lib/push";
 
-interface Profile { user_id: string; full_name: string; email: string; mobile: string; blocked: boolean; }
+interface Profile { user_id: string; full_name: string; email: string; mobile: string; blocked: boolean; logout_enabled?: boolean; }
 interface Withdrawal { id: string; amount: number; upi_id: string; status: string; created_at: string; }
 interface Notification { id: string; title: string; message: string; is_read: boolean; created_at: string; }
 
@@ -126,14 +126,14 @@ const Dashboard = () => {
             </Button>
 
             {isAdmin && (
-              <>
-                <Button variant="outline" size="sm" onClick={() => nav("/admin")}>
-                  <Shield className="w-4 h-4 mr-1" /> Admin
-                </Button>
-                <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); nav("/auth"); }} aria-label="Logout">
-                  <LogOut className="w-4 h-4" />
-                </Button>
-              </>
+              <Button variant="outline" size="sm" onClick={() => nav("/admin")}>
+                <Shield className="w-4 h-4 mr-1" /> Admin
+              </Button>
+            )}
+            {(isAdmin || profile?.logout_enabled) && (
+              <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); nav("/auth"); }} aria-label="Logout">
+                <LogOut className="w-4 h-4" />
+              </Button>
             )}
           </div>
         </div>

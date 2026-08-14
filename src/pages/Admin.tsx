@@ -14,6 +14,7 @@ import { ArrowLeft, Ban, CheckCircle2, XCircle, Plus, Minus, Send, Loader2, User
 
 interface UserRow {
   id: string; user_id: string; full_name: string; email: string; mobile: string; blocked: boolean;
+  logout_enabled?: boolean;
   balance?: number;
 }
 interface Wd {
@@ -62,6 +63,15 @@ const Admin = () => {
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success(u.blocked ? "User unblocked" : "User blocked");
+    loadAll();
+  };
+
+  const toggleLogout = async (u: UserRow) => {
+    setBusy(true);
+    const { error } = await supabase.from("profiles").update({ logout_enabled: !u.logout_enabled }).eq("id", u.id);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(u.logout_enabled ? "Logout option disabled" : "Logout option enabled");
     loadAll();
   };
 
@@ -300,6 +310,9 @@ const Admin = () => {
                     ) : (
                       <Button size="sm" variant="outline" onClick={() => setAdminRole(u, true)} disabled={busy}><ShieldCheck className="w-4 h-4 mr-1" /> Make Admin</Button>
                     )}
+                    <Button size="sm" variant="outline" onClick={() => toggleLogout(u)} disabled={busy} title="Show or hide the logout button for this user">
+                      <LogOut className="w-4 h-4 mr-1" /> {u.logout_enabled ? "Logout: ON" : "Logout: OFF"}
+                    </Button>
                     <Button size="sm" variant={u.blocked ? "outline" : "destructive"} onClick={() => toggleBlock(u)} disabled={busy}>
                       <Ban className="w-4 h-4 mr-1" /> {u.blocked ? "Unblock" : "Block"}
                     </Button>

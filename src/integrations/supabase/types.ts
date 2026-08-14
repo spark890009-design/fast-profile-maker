@@ -67,6 +67,7 @@ export type Database = {
           full_name: string
           id: string
           joined_group: boolean
+          logout_enabled: boolean
           mobile: string
           updated_at: string
           user_id: string
@@ -78,6 +79,7 @@ export type Database = {
           full_name: string
           id: string
           joined_group?: boolean
+          logout_enabled?: boolean
           mobile: string
           updated_at?: string
           user_id: string
@@ -89,6 +91,7 @@ export type Database = {
           full_name?: string
           id?: string
           joined_group?: boolean
+          logout_enabled?: boolean
           mobile?: string
           updated_at?: string
           user_id?: string
