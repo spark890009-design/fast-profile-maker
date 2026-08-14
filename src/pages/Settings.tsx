@@ -111,13 +111,13 @@ const Settings = () => {
                 </p>
               </div>
               <Switch
-                checked={sound}
-                onCheckedChange={(v) => {
+                checked
+                disabled
+                onCheckedChange={() => {
                   primeSound();
-                  setSoundEnabled(v);
-                  setSound(v);
-                  if (v) { playRing("success"); toast.success("Ring alerts enabled"); }
-                  else toast.message("Ring alerts disabled");
+                  setSoundEnabled(true);
+                  setSound(true);
+                  toast.message("Alerts are always on and can't be turned off");
                 }}
               />
             </div>
