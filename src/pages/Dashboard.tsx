@@ -130,9 +130,6 @@ const Dashboard = () => {
                 <Shield className="w-4 h-4 mr-1" /> Admin
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); nav("/auth"); }}>
-              <LogOut className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </nav>
