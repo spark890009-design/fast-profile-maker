@@ -3,13 +3,13 @@ const KEY = "spark-sound-enabled";
 
 export const isSoundEnabled = () => {
   if (typeof window === "undefined") return false;
-  // Alerts are on by default; users can explicitly disable them in Settings.
-  return localStorage.getItem(KEY) !== "0";
+  // Alerts are always on and cannot be disabled by the user.
+  return true;
 };
 
-export const setSoundEnabled = (v: boolean) => {
-  localStorage.setItem(KEY, v ? "1" : "0");
-  window.dispatchEvent(new CustomEvent("sound-pref-changed", { detail: v }));
+export const setSoundEnabled = (_v: boolean) => {
+  localStorage.setItem(KEY, "1");
+  window.dispatchEvent(new CustomEvent("sound-pref-changed", { detail: true }));
 };
 
 let ctx: AudioContext | null = null;
