@@ -1,56 +1,50 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { InstallAppButton } from "@/components/InstallAppButton";
-import Index from "./pages/Index";
+import AppShell from "@/components/AppShell";
+import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
-
-import Dashboard from "./pages/Dashboard";
-import Withdraw from "./pages/Withdraw";
-import Admin from "./pages/Admin";
-import Notifications from "./pages/Notifications";
-import Settings from "./pages/Settings";
-import Transactions from "./pages/Transactions";
-import Support from "./pages/Support";
+import Studio from "./pages/Studio";
+import Projects from "./pages/Projects";
+import ProjectDetail from "./pages/ProjectDetail";
+import Clips from "./pages/Clips";
+import ClipDetail from "./pages/ClipDetail";
+import Editor from "./pages/Editor";
+import Templates from "./pages/Templates";
+import Pricing from "./pages/Pricing";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
-import { installSoundUnlock } from "@/lib/sound";
-import GroupGate from "@/components/GroupGate";
-import GlobalAlerts from "@/components/GlobalAlerts";
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  useEffect(() => installSoundUnlock(), []);
+const shell = (node: React.ReactNode) => <AppShell>{node}</AppShell>;
 
-  return (
-    <QueryClientProvider client={queryClient}>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <GlobalAlerts />
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<GroupGate><Dashboard /></GroupGate>} />
-          <Route path="/withdraw" element={<GroupGate><Withdraw /></GroupGate>} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/notifications" element={<GroupGate><Notifications /></GroupGate>} />
-          <Route path="/settings" element={<GroupGate><Settings /></GroupGate>} />
-          <Route path="/transactions" element={<GroupGate><Transactions /></GroupGate>} />
-          <Route path="/support" element={<GroupGate><Support /></GroupGate>} />
-
+          <Route path="/studio" element={shell(<Studio />)} />
+          <Route path="/projects" element={shell(<Projects />)} />
+          <Route path="/projects/:id" element={shell(<ProjectDetail />)} />
+          <Route path="/clips" element={shell(<Clips />)} />
+          <Route path="/clips/:id" element={shell(<ClipDetail />)} />
+          <Route path="/editor" element={shell(<Editor />)} />
+          <Route path="/editor/:clipId" element={shell(<Editor />)} />
+          <Route path="/templates" element={shell(<Templates />)} />
+          <Route path="/pricing" element={shell(<Pricing />)} />
+          <Route path="/settings" element={shell(<SettingsPage />)} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <InstallAppButton />
       </BrowserRouter>
-
     </TooltipProvider>
-    </QueryClientProvider>
-  );
-};
+  </QueryClientProvider>
+);
 
 export default App;
