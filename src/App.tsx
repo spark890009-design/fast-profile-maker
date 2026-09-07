@@ -36,7 +36,7 @@ const App = () => (
           <Route path="/clips" element={shell(<Clips />)} />
           <Route path="/clips/:id" element={shell(<ClipDetail />)} />
           <Route path="/editor" element={shell(<Editor />)} />
-          <Route path="/editor/:id" element={shell(<Editor />)} />
+          <Route path="/editor/:clipId" element={shell(<Editor />)} />
           <Route path="/templates" element={shell(<Templates />)} />
           <Route path="/pricing" element={shell(<Pricing />)} />
           <Route path="/settings" element={shell(<SettingsPage />)} />
