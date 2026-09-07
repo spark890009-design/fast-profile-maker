@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import AppShell from "@/components/AppShell";
+import ClipPlayer from "@/components/ClipPlayer";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -76,9 +77,8 @@ export default function Editor() {
 
           <div className="space-y-4">
             <div className="glass rounded-3xl p-4 flex justify-center">
-              <div className="relative w-[240px] aspect-[9/16] rounded-2xl overflow-hidden flex items-end p-4"
-                style={{ background: `linear-gradient(160deg, hsl(${clip.thumbnailHue} 90% 55% / .35), hsl(${(clip.thumbnailHue + 80) % 360} 90% 60% / .25))`, transform: `scale(${zoom[0]})` }}>
-                <p className={style.className}>{clip.hook}</p>
+              <div className="w-[240px] aspect-[9/16] rounded-2xl overflow-hidden" style={{ transform: `scale(${zoom[0]})` }}>
+                <ClipPlayer clip={clip} className="w-full h-full" />
               </div>
             </div>
 
