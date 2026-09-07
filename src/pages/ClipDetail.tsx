@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Copy, Download, RefreshCw, Wand2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import AppShell from "@/components/AppShell";
+import ClipPlayer from "@/components/ClipPlayer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -71,10 +72,7 @@ export default function ClipDetail() {
 
         <div className="grid lg:grid-cols-[320px_1fr] gap-6">
           <div>
-            <div className="rounded-3xl overflow-hidden glass relative aspect-[9/16] flex items-end p-4"
-              style={{ background: `linear-gradient(160deg, hsl(${clip.thumbnailHue} 90% 55% / .35), hsl(${(clip.thumbnailHue + 80) % 360} 90% 60% / .25))` }}>
-              <p className={style.className}>{clip.hook}</p>
-            </div>
+            <ClipPlayer clip={clip} className="rounded-3xl glass aspect-[9/16]" />
             <Button asChild className="w-full mt-3 gradient-brand text-primary-foreground border-0">
               <Link to={`/editor/${clip.id}`}><Wand2 className="w-4 h-4 mr-1" /> Open in editor</Link>
             </Button>
