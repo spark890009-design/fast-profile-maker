@@ -9,12 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2, Wallet } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { Logo } from "@/components/AppShell";
+import { BRAND } from "@/lib/clipora/constants";
 
 const registerSchema = z.object({
   full_name: z.string().trim().min(2, "Enter your full name").max(80),
   email: z.string().trim().email("Invalid email").max(120),
-  mobile: z.string().trim().regex(/^\d{10}$/, "10-digit mobile number required"),
   password: z.string().min(6, "Password must be at least 6 characters").max(72),
   confirm: z.string(),
 }).refine((d) => d.password === d.confirm, { message: "Passwords do not match", path: ["confirm"] });
@@ -30,7 +31,7 @@ const Auth = () => {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) nav("/dashboard", { replace: true });
+      if (data.session) nav("/studio", { replace: true });
     });
   }, [nav]);
 
@@ -43,13 +44,13 @@ const Auth = () => {
       return;
     }
     setLoading(true);
-    const { full_name, email, mobile, password } = parsed.data;
+    const { full_name, email, password } = parsed.data;
 
     const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name, mobile },
+        data: { full_name },
       },
     });
     if (error) {
@@ -62,13 +63,13 @@ const Auth = () => {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) {
         setLoading(false);
-        toast.error("Account banaya gaya. Ab login karein.");
+        toast.error("Account created. Please log in.");
         return;
       }
     }
     setLoading(false);
     toast.success("Account created! Redirecting…");
-    nav("/dashboard", { replace: true });
+    nav("/studio", { replace: true });
   };
 
 
@@ -87,7 +88,7 @@ const Auth = () => {
       toast.error(error.message);
       return;
     }
-    nav("/dashboard", { replace: true });
+    nav("/studio", { replace: true });
   };
 
   const handleForgot = async () => {
@@ -110,14 +111,14 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <Wallet className="w-8 h-8 text-primary" />
-          <span className="text-2xl font-bold text-gradient">SPARK WALLET</span>
+        <div className="flex flex-col items-center gap-2 mb-6 text-center">
+          <Logo />
+          <p className="text-sm text-muted-foreground">{BRAND.tagline}</p>
         </div>
         <Card className="card-elevated">
           <CardHeader>
             <CardTitle>Welcome</CardTitle>
-            <CardDescription>Register or login to access your wallet</CardDescription>
+            <CardDescription>Sign in to start turning long videos into perfect shorts</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login">
@@ -152,12 +153,8 @@ const Auth = () => {
                     <Input id="r-name" name="full_name" required />
                   </div>
                   <div>
-                    <Label htmlFor="r-email">Email (Gmail)</Label>
+                    <Label htmlFor="r-email">Email</Label>
                     <Input id="r-email" name="email" type="email" required />
-                  </div>
-                  <div>
-                    <Label htmlFor="r-mobile">Mobile Number</Label>
-                    <Input id="r-mobile" name="mobile" inputMode="numeric" maxLength={10} required />
                   </div>
                   <div>
                     <Label htmlFor="r-password">Password (minimum 6 characters)</Label>
