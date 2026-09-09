@@ -43,11 +43,13 @@ export default function Studio() {
     setRunning(true);
     setProgress(null);
     try {
+      if (kind === "upload" && file) await saveVideo(projectId, file);
       const result = await analyzeVideo(
         { projectId, source: { kind, value }, targetDuration: duration, templateId, captionStyle },
         setProgress,
       );
       const clips: Clip[] = result.clips.map((c) => ({ ...c, projectId, captionStyle }));
+
       const project: Project = {
         id: projectId,
         name: kind === "url" ? value.replace(/^https?:\/\//, "").slice(0, 48) : value,
