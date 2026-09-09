@@ -18,8 +18,26 @@ export default function ClipDetail() {
   const { id } = useParams();
   const { allClips, update } = useClips();
   const { add } = useExports();
+  const { projects } = useProjects();
   const clip = allClips.find((c) => c.id === id);
+  const project = projects.find((p) => p.id === clip?.projectId);
   const [busy, setBusy] = useState(false);
+  const [dl, setDl] = useState<number | null>(null);
+
+  const download = async () => {
+    if (!clip) return;
+    setDl(0);
+    const t = toast.loading("Cutting your clip…");
+    try {
+      const name = await downloadClip(clip, project, { onProgress: setDl });
+      toast.success(`Downloaded ${name}`, { id: t });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Download failed", { id: t });
+    } finally {
+      setDl(null);
+    }
+  };
+
 
   if (!clip) {
     return (
