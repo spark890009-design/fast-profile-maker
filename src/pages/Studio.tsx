@@ -1,5 +1,7 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { saveVideo } from "@/lib/clipora/videoStore";
+
 import { Upload, Link2, Loader2, Check, Sparkles, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import AppShell from "@/components/AppShell";
