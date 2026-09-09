@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   Scissors, Crop, Type, Music, Image as ImageIcon, Sparkles, Play, Pause,
-  SkipBack, SkipForward, Save, Wand2,
+  SkipBack, SkipForward, Save, Wand2, Download, Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import AppShell from "@/components/AppShell";
@@ -11,9 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useClips } from "@/lib/clipora/store";
+import { useClips, useProjects } from "@/lib/clipora/store";
 import { CAPTION_STYLES } from "@/lib/clipora/constants";
+import { downloadClip } from "@/lib/clipora/clipExporter";
 import { cn } from "@/lib/utils";
+
 
 const TOOLS = [
   { id: "trim", label: "Trim", icon: Scissors },
