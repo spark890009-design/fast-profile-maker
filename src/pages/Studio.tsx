@@ -29,6 +29,7 @@ export default function Studio() {
   const [running, setRunning] = useState(false);
 
   const start = async (kind: "url" | "upload") => {
+    if (running) return;
     const value = kind === "url" ? url.trim() : file?.name ?? "";
     if (kind === "url") {
       const check = validateSource(value);
@@ -36,6 +37,7 @@ export default function Studio() {
     } else if (!file) {
       return toast.error("Choose a video file first.");
     }
+
 
     const projectId = crypto.randomUUID();
     setRunning(true);
