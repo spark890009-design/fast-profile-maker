@@ -93,10 +93,20 @@ export default function ClipDetail() {
         <div className="grid lg:grid-cols-[320px_1fr] gap-6">
           <div>
             <ClipPlayer clip={clip} className="rounded-3xl glass aspect-[9/16]" />
-            <Button asChild className="w-full mt-3 gradient-brand text-primary-foreground border-0">
+            <Button className="w-full mt-3 gradient-brand text-primary-foreground border-0" disabled={dl !== null} onClick={download}>
+              {dl !== null ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
+              {dl !== null ? `Cutting ${dl}%` : "Download clip"}
+            </Button>
+            {!canDownload(project) && (
+              <p className="text-[11px] text-muted-foreground mt-2 text-center">
+                Downloads work for uploaded files and direct .mp4 links.
+              </p>
+            )}
+            <Button asChild variant="outline" className="w-full mt-2">
               <Link to={`/editor/${clip.id}`}><Wand2 className="w-4 h-4 mr-1" /> Open in editor</Link>
             </Button>
           </div>
+
 
           <div className="space-y-4">
             <div className="glass rounded-2xl p-5">
