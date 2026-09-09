@@ -122,19 +122,31 @@ export default function ClipPlayer({ clip, className, showCaption = true, previe
       )}
 
       {source.kind === "youtube" && (
-        <iframe
-          className="absolute inset-0 w-full h-full"
-          src={`https://www.youtube.com/embed/${source.id}?start=${Math.floor(clip.start)}&end=${Math.ceil(clip.end)}&rel=0&modestbranding=1`}
-          title={clip.title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
-          allowFullScreen
-        />
+        <>
+          <iframe
+            ref={frameRef}
+            className="absolute inset-0 w-full h-full scale-[1.35] pointer-events-none"
+            src={`https://www.youtube-nocookie.com/embed/${source.id}?start=${Math.floor(clip.start)}&end=${Math.ceil(
+              clip.end,
+            )}&autoplay=1&mute=1&controls=0&rel=0&modestbranding=1&iv_load_policy=3&playsinline=1&disablekb=1&fs=0&enablejsapi=1`}
+            title={clip.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
+          />
+          <button
+            type="button"
+            onClick={toggleEmbed}
+            className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-background/30"
+            aria-label={playing ? "Pause" : "Play"}
+          >
+            {playing ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
+          </button>
+        </>
       )}
 
       {source.kind === "vimeo" && (
         <iframe
           className="absolute inset-0 w-full h-full"
-          src={`https://player.vimeo.com/video/${source.id}#t=${Math.floor(clip.start)}s`}
+          src={`https://player.vimeo.com/video/${source.id}?title=0&byline=0&portrait=0#t=${Math.floor(clip.start)}s`}
           title={clip.title}
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
@@ -150,9 +162,10 @@ export default function ClipPlayer({ clip, className, showCaption = true, previe
         </div>
       )}
 
-      {showCaption && source.kind !== "file" && (
-        <p className={cn(style.className, "absolute inset-x-3 bottom-3 pointer-events-none")}>{clip.hook}</p>
+      {showCaption && source.kind !== "none" && (
+        <p className={cn(style.className, "absolute inset-x-3 bottom-3 pointer-events-none text-center")}>{clip.hook}</p>
       )}
+
     </div>
   );
 }
