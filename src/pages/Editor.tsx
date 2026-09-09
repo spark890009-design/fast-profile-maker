@@ -29,13 +29,31 @@ const TOOLS = [
 export default function Editor() {
   const { clipId } = useParams();
   const { allClips, update } = useClips();
+  const { projects } = useProjects();
   const clip = allClips.find((c) => c.id === clipId) ?? allClips[0];
+  const project = projects.find((p) => p.id === clip?.projectId);
   const [tool, setTool] = useState("trim");
   const [playing, setPlaying] = useState(false);
   const [playhead, setPlayhead] = useState(0);
   const [zoom, setZoom] = useState([1.0]);
   const [volume, setVolume] = useState([80]);
   const [autoFrame, setAutoFrame] = useState(true);
+  const [dl, setDl] = useState<number | null>(null);
+
+  const download = async () => {
+    if (!clip) return;
+    setDl(0);
+    const t = toast.loading("Cutting your clip…");
+    try {
+      const name = await downloadClip(clip, project, { onProgress: setDl });
+      toast.success(`Downloaded ${name}`, { id: t });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Download failed", { id: t });
+    } finally {
+      setDl(null);
+    }
+  };
+
 
   if (!clip) {
     return (
