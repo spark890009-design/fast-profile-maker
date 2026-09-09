@@ -78,9 +78,16 @@ export default function Editor() {
             <h1 className="font-display font-extrabold text-2xl line-clamp-1">{clip.title}</h1>
             <p className="text-xs text-muted-foreground">{clip.duration}s · {clip.platform}</p>
           </div>
-          <Button className="gradient-brand text-primary-foreground border-0" onClick={() => toast.success("Edit saved")}>
-            <Save className="w-4 h-4 mr-1" /> Save
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" disabled={dl !== null} onClick={download}>
+              {dl !== null ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
+              {dl !== null ? `${dl}%` : "Download"}
+            </Button>
+            <Button className="gradient-brand text-primary-foreground border-0" onClick={() => toast.success("Edit saved")}>
+              <Save className="w-4 h-4 mr-1" /> Save
+            </Button>
+          </div>
+
         </div>
 
         <div className="grid lg:grid-cols-[80px_1fr_300px] gap-4">
