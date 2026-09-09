@@ -27,7 +27,18 @@ export default function ClipPlayer({ clip, className, showCaption = true, previe
   const [source, setSource] = useState<Source>({ kind: "none" });
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const frameRef = useRef<HTMLIFrameElement>(null);
   const style = CAPTION_STYLES.find((s) => s.id === clip.captionStyle) ?? CAPTION_STYLES[0];
+
+  const toggleEmbed = () => {
+    const next = playing ? "pauseVideo" : "playVideo";
+    frameRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: "command", func: next, args: [] }),
+      "*",
+    );
+    setPlaying((p) => !p);
+  };
+
 
   useEffect(() => {
     let objectUrl: string | undefined;
