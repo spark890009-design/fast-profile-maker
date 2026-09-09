@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   Scissors, Crop, Type, Music, Image as ImageIcon, Sparkles, Play, Pause,
-  SkipBack, SkipForward, Save, Wand2,
+  SkipBack, SkipForward, Save, Wand2, Download, Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import AppShell from "@/components/AppShell";
@@ -11,9 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useClips } from "@/lib/clipora/store";
+import { useClips, useProjects } from "@/lib/clipora/store";
 import { CAPTION_STYLES } from "@/lib/clipora/constants";
+import { downloadClip } from "@/lib/clipora/clipExporter";
 import { cn } from "@/lib/utils";
+
 
 const TOOLS = [
   { id: "trim", label: "Trim", icon: Scissors },
@@ -27,13 +29,31 @@ const TOOLS = [
 export default function Editor() {
   const { clipId } = useParams();
   const { allClips, update } = useClips();
+  const { projects } = useProjects();
   const clip = allClips.find((c) => c.id === clipId) ?? allClips[0];
+  const project = projects.find((p) => p.id === clip?.projectId);
   const [tool, setTool] = useState("trim");
   const [playing, setPlaying] = useState(false);
   const [playhead, setPlayhead] = useState(0);
   const [zoom, setZoom] = useState([1.0]);
   const [volume, setVolume] = useState([80]);
   const [autoFrame, setAutoFrame] = useState(true);
+  const [dl, setDl] = useState<number | null>(null);
+
+  const download = async () => {
+    if (!clip) return;
+    setDl(0);
+    const t = toast.loading("Cutting your clip…");
+    try {
+      const name = await downloadClip(clip, project, { onProgress: setDl });
+      toast.success(`Downloaded ${name}`, { id: t });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Download failed", { id: t });
+    } finally {
+      setDl(null);
+    }
+  };
+
 
   if (!clip) {
     return (
@@ -58,9 +78,16 @@ export default function Editor() {
             <h1 className="font-display font-extrabold text-2xl line-clamp-1">{clip.title}</h1>
             <p className="text-xs text-muted-foreground">{clip.duration}s · {clip.platform}</p>
           </div>
-          <Button className="gradient-brand text-primary-foreground border-0" onClick={() => toast.success("Edit saved")}>
-            <Save className="w-4 h-4 mr-1" /> Save
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" disabled={dl !== null} onClick={download}>
+              {dl !== null ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
+              {dl !== null ? `${dl}%` : "Download"}
+            </Button>
+            <Button className="gradient-brand text-primary-foreground border-0" onClick={() => toast.success("Edit saved")}>
+              <Save className="w-4 h-4 mr-1" /> Save
+            </Button>
+          </div>
+
         </div>
 
         <div className="grid lg:grid-cols-[80px_1fr_300px] gap-4">

@@ -1,5 +1,7 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { saveVideo } from "@/lib/clipora/videoStore";
+
 import { Upload, Link2, Loader2, Check, Sparkles, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import AppShell from "@/components/AppShell";
@@ -27,8 +29,11 @@ export default function Studio() {
   const [captionStyle, setCaptionStyle] = useState(CAPTION_STYLES[0].id);
   const [progress, setProgress] = useState<AnalysisProgress | null>(null);
   const [running, setRunning] = useState(false);
+  const [autoCut] = useState(true);
+
 
   const start = async (kind: "url" | "upload") => {
+    if (running) return;
     const value = kind === "url" ? url.trim() : file?.name ?? "";
     if (kind === "url") {
       const check = validateSource(value);
@@ -37,15 +42,18 @@ export default function Studio() {
       return toast.error("Choose a video file first.");
     }
 
+
     const projectId = crypto.randomUUID();
     setRunning(true);
     setProgress(null);
     try {
+      if (kind === "upload" && file) await saveVideo(projectId, file);
       const result = await analyzeVideo(
         { projectId, source: { kind, value }, targetDuration: duration, templateId, captionStyle },
         setProgress,
       );
       const clips: Clip[] = result.clips.map((c) => ({ ...c, projectId, captionStyle }));
+
       const project: Project = {
         id: projectId,
         name: kind === "url" ? value.replace(/^https?:\/\//, "").slice(0, 48) : value,
@@ -67,6 +75,26 @@ export default function Studio() {
       setRunning(false);
     }
   };
+
+  // Auto-cut: as soon as a valid link is pasted, start the analysis on its own.
+  const startRef = useRef(start);
+  startRef.current = start;
+  useEffect(() => {
+    if (!autoCut || running || !url.trim() || !validateSource(url.trim()).ok) return;
+    const t = setTimeout(() => startRef.current("url"), 900);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url, autoCut]);
+
+  // Auto-cut for uploads too.
+  useEffect(() => {
+    if (!autoCut || running || !file) return;
+    const t = setTimeout(() => startRef.current("upload"), 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file, autoCut]);
+
+
 
   return (
     <AppShell>

@@ -7,17 +7,37 @@ import ClipPlayer from "@/components/ClipPlayer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { useClips, useExports } from "@/lib/clipora/store";
+import { useClips, useExports, useProjects } from "@/lib/clipora/store";
 import { CAPTION_STYLES, PLATFORM_PRESETS } from "@/lib/clipora/constants";
 import { backendConfigured, regenerateHooks, requestRender } from "@/lib/clipora/aiService";
+import { canDownload, downloadClip } from "@/lib/clipora/clipExporter";
 import type { ClipPlatform } from "@/lib/clipora/types";
+
 
 export default function ClipDetail() {
   const { id } = useParams();
   const { allClips, update } = useClips();
   const { add } = useExports();
+  const { projects } = useProjects();
   const clip = allClips.find((c) => c.id === id);
+  const project = projects.find((p) => p.id === clip?.projectId);
   const [busy, setBusy] = useState(false);
+  const [dl, setDl] = useState<number | null>(null);
+
+  const download = async () => {
+    if (!clip) return;
+    setDl(0);
+    const t = toast.loading("Cutting your clip…");
+    try {
+      const name = await downloadClip(clip, project, { onProgress: setDl });
+      toast.success(`Downloaded ${name}`, { id: t });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Download failed", { id: t });
+    } finally {
+      setDl(null);
+    }
+  };
+
 
   if (!clip) {
     return (
@@ -73,10 +93,20 @@ export default function ClipDetail() {
         <div className="grid lg:grid-cols-[320px_1fr] gap-6">
           <div>
             <ClipPlayer clip={clip} className="rounded-3xl glass aspect-[9/16]" />
-            <Button asChild className="w-full mt-3 gradient-brand text-primary-foreground border-0">
+            <Button className="w-full mt-3 gradient-brand text-primary-foreground border-0" disabled={dl !== null} onClick={download}>
+              {dl !== null ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
+              {dl !== null ? `Cutting ${dl}%` : "Download clip"}
+            </Button>
+            {!canDownload(project) && (
+              <p className="text-[11px] text-muted-foreground mt-2 text-center">
+                Downloads work for uploaded files and direct .mp4 links.
+              </p>
+            )}
+            <Button asChild variant="outline" className="w-full mt-2">
               <Link to={`/editor/${clip.id}`}><Wand2 className="w-4 h-4 mr-1" /> Open in editor</Link>
             </Button>
           </div>
+
 
           <div className="space-y-4">
             <div className="glass rounded-2xl p-5">
