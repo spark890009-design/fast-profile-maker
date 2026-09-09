@@ -29,6 +29,8 @@ export default function Studio() {
   const [captionStyle, setCaptionStyle] = useState(CAPTION_STYLES[0].id);
   const [progress, setProgress] = useState<AnalysisProgress | null>(null);
   const [running, setRunning] = useState(false);
+  const [autoCut] = useState(true);
+
 
   const start = async (kind: "url" | "upload") => {
     if (running) return;
