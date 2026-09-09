@@ -74,6 +74,26 @@ export default function Studio() {
     }
   };
 
+  // Auto-cut: as soon as a valid link is pasted, start the analysis on its own.
+  const startRef = useRef(start);
+  startRef.current = start;
+  useEffect(() => {
+    if (!autoCut || running || !url.trim() || !validateSource(url.trim()).ok) return;
+    const t = setTimeout(() => startRef.current("url"), 900);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url, autoCut]);
+
+  // Auto-cut for uploads too.
+  useEffect(() => {
+    if (!autoCut || running || !file) return;
+    const t = setTimeout(() => startRef.current("upload"), 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file, autoCut]);
+
+
+
   return (
     <AppShell>
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
