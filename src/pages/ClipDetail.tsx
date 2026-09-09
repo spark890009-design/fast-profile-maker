@@ -7,10 +7,12 @@ import ClipPlayer from "@/components/ClipPlayer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { useClips, useExports } from "@/lib/clipora/store";
+import { useClips, useExports, useProjects } from "@/lib/clipora/store";
 import { CAPTION_STYLES, PLATFORM_PRESETS } from "@/lib/clipora/constants";
 import { backendConfigured, regenerateHooks, requestRender } from "@/lib/clipora/aiService";
+import { canDownload, downloadClip } from "@/lib/clipora/clipExporter";
 import type { ClipPlatform } from "@/lib/clipora/types";
+
 
 export default function ClipDetail() {
   const { id } = useParams();
