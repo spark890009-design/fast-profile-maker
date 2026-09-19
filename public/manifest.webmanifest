@@ -1,13 +1,17 @@
 {
-  "name": "Clipora AI",
-  "short_name": "Clipora",
-  "description": "Clipora AI — turn long videos into perfect vertical shorts.",
+  "name": "Milk Tracker",
+  "short_name": "Milk Tracker",
+  "description": "Daily milk attendance, quantity, price, payments and balance tracker.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#05060a",
-  "theme_color": "#05060a",
+  "background_color": "#f7fdfa",
+  "theme_color": "#1f8a5b",
   "icons": [
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
