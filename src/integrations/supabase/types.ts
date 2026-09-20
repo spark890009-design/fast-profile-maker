@@ -32,6 +32,130 @@ export type Database = {
         }
         Relationships: []
       }
+      dairies: {
+        Row: {
+          created_at: string
+          default_litres: number
+          default_rate: number
+          id: string
+          name: string
+          owner_name: string | null
+          phone: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_litres?: number
+          default_rate?: number
+          id?: string
+          name: string
+          owner_name?: string | null
+          phone?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          default_litres?: number
+          default_rate?: number
+          id?: string
+          name?: string
+          owner_name?: string | null
+          phone?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      milk_entries: {
+        Row: {
+          created_at: string
+          dairy_id: string
+          entry_date: string
+          id: string
+          litres: number
+          notes: string | null
+          paid_amount: number
+          rate: number
+          status: string
+          taken: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dairy_id: string
+          entry_date: string
+          id?: string
+          litres?: number
+          notes?: string | null
+          paid_amount?: number
+          rate?: number
+          status?: string
+          taken?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dairy_id?: string
+          entry_date?: string
+          id?: string
+          litres?: number
+          notes?: string | null
+          paid_amount?: number
+          rate?: number
+          status?: string
+          taken?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milk_entries_dairy_id_fkey"
+            columns: ["dairy_id"]
+            isOneToOne: false
+            referencedRelation: "dairies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      milk_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          dairy_id: string
+          id: string
+          note: string | null
+          pay_date: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          dairy_id: string
+          id?: string
+          note?: string | null
+          pay_date: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          dairy_id?: string
+          id?: string
+          note?: string | null
+          pay_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milk_payments_dairy_id_fkey"
+            columns: ["dairy_id"]
+            isOneToOne: false
+            referencedRelation: "dairies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
