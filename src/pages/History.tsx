@@ -4,14 +4,19 @@ import { ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { entryAmount, inr, monthKey, monthLabel, shiftMonth, useEntries, useMonthSummary } from "@/lib/milk/store";
+import { entryAmount, inr, monthKey, monthLabel, shiftMonth, summarise, useDeleteEntry, useEntries, usePayments } from "@/lib/milk/data";
+import { useCurrentDairy } from "@/lib/milk/useCurrentDairy";
 
 export default function History() {
   const [month, setMonth] = useState(monthKey(new Date()));
-  const { remove } = useEntries();
-  const s = useMonthSummary(month);
+  const { current } = useCurrentDairy();
+  const { data: entries = [] } = useEntries(current?.id);
+  const { data: payments = [] } = usePayments(current?.id);
+  const del = useDeleteEntry();
+  const remove = (id: string) => del.mutate(id);
+  const s = summarise(entries, payments, month);
 
-  const rows = [...s.monthEntries].sort((a, b) => b.date.localeCompare(a.date));
+  const rows = [...s.entries].sort((a, b) => b.entry_date.localeCompare(a.entry_date));
 
   return (
     <div className="space-y-4">
@@ -49,17 +54,17 @@ export default function History() {
           <div className="min-w-0">
             <p className="font-medium">
               {e.taken ? "✅" : "❌"}{" "}
-              {new Date(e.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+              {new Date(e.entry_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              {e.taken ? `${e.litres} L × ${inr(e.pricePerLitre)} · ${e.status}` : "No milk"}
+              {e.taken ? `${e.litres} L × ${inr(e.rate)} · ${e.status}` : "No milk"}
               {e.notes ? ` · ${e.notes}` : ""}
             </p>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <span className="font-display font-bold">{inr(entryAmount(e))}</span>
             <Button asChild variant="ghost" size="icon" aria-label="Edit entry">
-              <Link to={`/add/${e.date}`}>
+              <Link to={`/add/${e.entry_date}`}>
                 <Pencil className="w-4 h-4" />
               </Link>
             </Button>
