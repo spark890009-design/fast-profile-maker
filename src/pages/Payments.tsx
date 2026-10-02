@@ -5,11 +5,16 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { entryAmount, inr, todayISO, useEntries, usePayments, type Payment } from "@/lib/milk/store";
+import { entryAmount, inr, todayISO, useDeletePayment, useEntries, usePayments, useSavePayment, type PaymentRow as Payment } from "@/lib/milk/data";
+import { useCurrentDairy } from "@/lib/milk/useCurrentDairy";
 
 export default function Payments() {
-  const { entries } = useEntries();
-  const { payments, save, remove } = usePayments();
+  const { current } = useCurrentDairy();
+  const { data: entries = [] } = useEntries(current?.id);
+  const { data: payments = [] } = usePayments(current?.id);
+  const saveM = useSavePayment();
+  const delM = useDeletePayment();
+  const remove = (id: string) => delM.mutate(id);
 
   const [editing, setEditing] = useState<Payment | null>(null);
   const [date, setDate] = useState(todayISO());
@@ -17,8 +22,8 @@ export default function Payments() {
   const [note, setNote] = useState("");
 
   const totalBill = entries.reduce((s, e) => s + entryAmount(e), 0);
-  const paidInEntries = entries.reduce((s, e) => s + (e.paidAmount || 0), 0);
-  const paidSeparate = payments.reduce((s, p) => s + p.amount, 0);
+  const paidInEntries = entries.reduce((s, e) => s + (Number(e.paid_amount) || 0), 0);
+  const paidSeparate = payments.reduce((s, p) => s + Number(p.amount), 0);
   const totalPaid = paidInEntries + paidSeparate;
 
   const reset = () => {
@@ -28,17 +33,18 @@ export default function Payments() {
     setNote("");
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     const amt = Number(amount);
     if (!amt || amt <= 0) return toast.error("Amount daalein");
-    save({ id: editing?.id || crypto.randomUUID(), date, amount: amt, note: note.trim() || undefined });
+    if (!current) return;
+    await saveM.mutateAsync({ id: editing?.id, dairy_id: current.id, pay_date: date, amount: amt, note: note.trim() || null });
     toast.success(editing ? "Payment updated" : "Payment added");
     reset();
   };
 
   const onEdit = (p: Payment) => {
     setEditing(p);
-    setDate(p.date);
+    setDate(p.pay_date);
     setAmount(String(p.amount));
     setNote(p.note || "");
   };
@@ -96,7 +102,7 @@ export default function Payments() {
             <div>
               <p className="font-display font-bold text-lg">{inr(p.amount)}</p>
               <p className="text-xs text-muted-foreground">
-                {new Date(p.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                {new Date(p.pay_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
                 {p.note ? ` · ${p.note}` : ""}
               </p>
             </div>
