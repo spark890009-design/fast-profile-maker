@@ -44,6 +44,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAdmin(false);
       return;
     }
+    const pendingAccountType = window.localStorage.getItem("milk.pendingAccountType");
+    if (pendingAccountType === "shop" || pendingAccountType === "customer") {
+      await supabase.from("profiles").update({ account_type: pendingAccountType }).eq("id", userId);
+      window.localStorage.removeItem("milk.pendingAccountType");
+    }
     const [{ data: profileData }, { data: roleData }] = await Promise.all([
       supabase.from("profiles").select("id,user_id,full_name,email,mobile,account_type,blocked").eq("id", userId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", userId),
