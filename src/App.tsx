@@ -11,6 +11,9 @@ import EntryForm from "./pages/EntryForm";
 import Payments from "./pages/Payments";
 import History from "./pages/History";
 import NotFound from "./pages/NotFound";
+import ResetPassword from "./pages/ResetPassword";
+import Admin from "./pages/Admin";
+import AppSplash from "@/components/AppSplash";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +24,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <AppSplash />
       <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -30,6 +34,8 @@ const App = () => (
           <Route path="/add/:date" element={shell(<EntryForm />)} />
           <Route path="/payments" element={shell(<Payments />)} />
           <Route path="/history" element={shell(<History />)} />
+          <Route path="/admin" element={shell(<Admin />)} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

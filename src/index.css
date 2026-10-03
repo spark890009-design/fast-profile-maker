@@ -1,50 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Milk Tracker — fresh green & white */
-    --background: 140 40% 98%;
-    --foreground: 155 30% 12%;
+    /* Milk Tracker — logo blue, fresh aqua and white */
+    --background: 198 55% 98%;
+    --foreground: 205 54% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 155 30% 12%;
+    --card-foreground: 205 54% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 155 30% 12%;
+    --popover-foreground: 205 54% 14%;
 
-    --primary: 152 62% 34%;
+    --primary: 202 84% 38%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 35% 94%;
-    --secondary-foreground: 155 30% 18%;
+    --secondary: 194 56% 92%;
+    --secondary-foreground: 205 54% 18%;
 
-    --muted: 150 30% 95%;
-    --muted-foreground: 155 12% 42%;
+    --muted: 198 30% 94%;
+    --muted-foreground: 205 15% 42%;
 
-    --accent: 150 45% 92%;
-    --accent-foreground: 155 30% 18%;
+    --accent: 187 54% 90%;
+    --accent-foreground: 205 54% 18%;
 
     --destructive: 0 72% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 150 20% 88%;
-    --input: 150 20% 88%;
-    --ring: 152 62% 34%;
+    --border: 198 25% 86%;
+    --input: 198 25% 86%;
+    --ring: 202 84% 38%;
 
     --radius: 0.9rem;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 155 30% 18%;
-    --sidebar-primary: 152 62% 34%;
+    --sidebar-foreground: 205 54% 18%;
+    --sidebar-primary: 202 84% 38%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 35% 94%;
-    --sidebar-accent-foreground: 155 30% 18%;
-    --sidebar-border: 150 20% 88%;
-    --sidebar-ring: 152 62% 34%;
+    --sidebar-accent: 194 56% 92%;
+    --sidebar-accent-foreground: 205 54% 18%;
+    --sidebar-border: 198 25% 86%;
+    --sidebar-ring: 202 84% 38%;
   }
 }
 
@@ -60,6 +58,6 @@
 
   h1, h2, h3, h4, .font-display {
     font-family: 'Sora', system-ui, sans-serif;
-    letter-spacing: -0.015em;
+    letter-spacing: 0;
   }
 }
