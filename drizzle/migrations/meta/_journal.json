@@ -15,6 +15,13 @@
       "when": 1791000514774,
       "tag": "0001_add_milk_account_type",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791000585945,
+      "tag": "0002_unique_profile_mobile",
+      "breakpoints": true
     }
   ]
 }
