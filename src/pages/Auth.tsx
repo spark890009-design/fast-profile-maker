@@ -69,7 +69,7 @@ export default function Auth() {
         setBusy(false);
         return toast.error(checkedPhone.error.issues[0]?.message);
       }
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: checkedEmail.data,
         password: checkedPassword.data,
         options: {
@@ -79,6 +79,11 @@ export default function Auth() {
       });
       setBusy(false);
       if (error) return toast.error(error.message.includes("profiles_mobile_unique") ? "Ye mobile number pehle se registered hai" : error.message);
+      if (!data.session) {
+        toast.success("Account request ho gayi — sign in karne se pehle apna email confirm karein");
+        setMode("signin");
+        return;
+      }
       toast.success("Account ban gaya — aap sign in ho gaye hain");
       return;
     }

@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, CalendarDays, PlusCircle, Wallet, ListOrdered, Milk, Plus, Settings2, LogOut } from "lucide-react";
+import { Home, CalendarDays, PlusCircle, Wallet, ListOrdered, Milk, Plus, Settings2, UserRound, ShieldCheck, Mail, Phone, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { useCurrentDairy } from "@/lib/milk/useCurrentDairy";
 import { inr, summarise, useEntries, usePayments } from "@/lib/milk/data";
@@ -18,7 +20,7 @@ const NAV = [
 ];
 
 export default function MilkLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, signOut } = useAuth();
+  const { user, profile, isAdmin, loading, signOut } = useAuth();
   const { dairies, current, loading: dl, select } = useCurrentDairy();
   const [mgr, setMgr] = useState(false);
   const { data: entries = [] } = useEntries(current?.id);
@@ -38,7 +40,36 @@ export default function MilkLayout({ children }: { children: React.ReactNode }) 
             <p className="text-xs opacity-85">दूध हिसाब</p>
           </div>
           <Button size="icon" variant="secondary" onClick={() => setMgr(true)} aria-label="Dairies"><Settings2 className="w-4 h-4" /></Button>
-          <Button size="icon" variant="secondary" onClick={signOut} aria-label="Logout"><LogOut className="w-4 h-4" /></Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="secondary" aria-label="Profile" className="rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-secondary text-secondary-foreground text-xs font-semibold">
+                    {(profile?.full_name || user.email || "U").slice(0, 1).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-72">
+              <DropdownMenuLabel className="font-normal">
+                <span className="block truncate font-semibold">{profile?.full_name || user.user_metadata?.full_name || "Milk Tracker user"}</span>
+                <span className="mt-1 flex items-center gap-2 break-all text-xs font-normal text-muted-foreground"><Mail className="h-3.5 w-3.5 shrink-0" />{user.email || "Email not available"}</span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <div className="space-y-2 px-2 py-1.5 text-xs text-muted-foreground">
+                <p className="flex items-center gap-2"><UserRound className="h-3.5 w-3.5 shrink-0" />{profile?.account_type === "shop" ? "Dairy shop" : "Customer"}</p>
+                <p className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 shrink-0" />{profile?.mobile || "Mobile not added"}</p>
+                <p className="break-all">User ID: {profile?.user_id || user.id}</p>
+              </div>
+              {isAdmin && <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <NavLink to="/admin" className="flex items-center gap-2"><ShieldCheck className="h-4 w-4" />Admin · Users</NavLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => void signOut()}><LogOut className="mr-2 h-4 w-4" />Sign out</DropdownMenuItem>
+              </>}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         {dairies.length > 0 && (
           <div className="mx-auto w-full max-w-2xl px-4 pb-2 flex gap-2 overflow-x-auto">
@@ -66,7 +97,7 @@ export default function MilkLayout({ children }: { children: React.ReactNode }) 
       <main className="flex-1 mx-auto w-full max-w-2xl px-4 py-4 pb-28">
         {dl ? (
           <p className="text-center text-muted-foreground">Loading…</p>
-        ) : !current ? (
+        ) : !current && !isAdmin ? (
           <div className="text-center space-y-4 py-16">
             <Milk className="w-12 h-12 mx-auto text-primary" />
             <p className="font-display text-xl font-bold">Pehle apni dairy add karein</p>
