@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { useAuth } from "@/hooks/useAuth";
 import { useCurrentDairy } from "@/lib/milk/useCurrentDairy";
 import { inr, summarise, useEntries, usePayments } from "@/lib/milk/data";
+import dairyLogo from "@/assets/pandey-dhoodh-dairy-logo.png.asset.json";
 import DairyManager from "./DairyManager";
 import Auth from "@/pages/Auth";
 
@@ -34,9 +35,9 @@ export default function MilkLayout({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-30 bg-primary text-primary-foreground shadow-md">
         <div className="mx-auto w-full max-w-2xl px-4 pt-3 pb-2 flex items-center gap-2">
-          <Milk className="w-6 h-6" />
+          <img src={dairyLogo.url} alt="Pandey Dhoodh Dairy" className="h-9 w-9 shrink-0 rounded-md object-contain" />
           <div className="flex-1">
-            <h1 className="font-display font-bold text-lg leading-tight">Milk Tracker</h1>
+            <h1 className="font-display font-bold text-lg leading-tight">Pandey Dhoodh Dairy</h1>
             <p className="text-xs opacity-85">दूध हिसाब</p>
           </div>
           <Button size="icon" variant="secondary" onClick={() => setMgr(true)} aria-label="Dairies"><Settings2 className="w-4 h-4" /></Button>

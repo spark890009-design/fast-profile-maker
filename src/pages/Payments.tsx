@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Pencil, Trash2, X } from "lucide-react";
+import { Download, Pencil, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { entryAmount, inr, todayISO, useDeletePayment, useEntries, usePayments, useSavePayment, type PaymentRow as Payment } from "@/lib/milk/data";
+import { entryAmount, inr, monthKey, todayISO, useDeletePayment, useEntries, usePayments, useSavePayment, type PaymentRow as Payment } from "@/lib/milk/data";
 import { useCurrentDairy } from "@/lib/milk/useCurrentDairy";
+import { downloadMonthlyDairyReport } from "@/lib/milk/monthlyReport";
 
 export default function Payments() {
   const { current } = useCurrentDairy();
@@ -20,6 +21,7 @@ export default function Payments() {
   const [date, setDate] = useState(todayISO());
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
+  const [reportMonth, setReportMonth] = useState(monthKey(new Date()));
 
   const totalBill = entries.reduce((s, e) => s + entryAmount(e), 0);
   const paidInEntries = entries.reduce((s, e) => s + (Number(e.paid_amount) || 0), 0);
@@ -51,6 +53,32 @@ export default function Payments() {
 
   return (
     <div className="space-y-4">
+      {current && (
+        <Card className="p-4 space-y-3">
+          <div>
+            <p className="font-semibold">Monthly PDF report</p>
+            <p className="text-xs text-muted-foreground">{current.name} · bill, payments received, and remaining balance</p>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Input
+              id="report-month"
+              aria-label="Report month"
+              type="month"
+              value={reportMonth}
+              onChange={(event) => setReportMonth(event.target.value)}
+              className="sm:flex-1"
+            />
+            <Button
+              className="sm:w-auto"
+              onClick={() => downloadMonthlyDairyReport(current.name, reportMonth, entries, payments)}
+              disabled={!reportMonth}
+            >
+              <Download className="mr-2 h-4 w-4" /> Download PDF
+            </Button>
+          </div>
+        </Card>
+      )}
+
       <div className="grid grid-cols-3 gap-3">
         <Card className="p-3">
           <p className="text-xs text-muted-foreground">Total bill</p>
