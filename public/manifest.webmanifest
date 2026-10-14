@@ -1,7 +1,7 @@
 {
-  "name": "Milk Tracker",
-  "short_name": "Milk Tracker",
-  "description": "Daily milk attendance, quantity, price, payments and balance tracker.",
+  "name": "Pandey Dhoodh Dairy",
+  "short_name": "Pandey Dairy",
+  "description": "Daily milk attendance, quantity, price, payments and balance tracker for Pandey Dhoodh Dairy.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f7fdfa",

@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import logo from "@/assets/milk-logo.png.asset.json";
+import logo from "@/assets/pandey-dhoodh-dairy-logo.png.asset.json";
 
 type Mode = "signin" | "signup";
 type AccountType = "shop" | "customer";
@@ -105,9 +105,9 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
       <Card className="w-full max-w-md p-6 space-y-5 animate-fade-in">
-        <img src={logo.url} alt="Milk Tracker" className="mx-auto h-24 w-24 rounded-2xl object-contain shadow-md" />
+        <img src={logo.url} alt="Pandey Dhoodh Dairy" className="mx-auto h-24 w-24 rounded-2xl object-contain shadow-md" />
         <div>
-          <h1 className="font-display text-2xl font-bold text-center text-primary">Milk Tracker</h1>
+          <h1 className="font-display text-2xl font-bold text-center text-primary">Pandey Dhoodh Dairy</h1>
           <p className="text-sm text-muted-foreground mt-1 text-center">
             दूध हिसाब · हर डेयरी का रोज़ का हिसाब, अपने आप सुरक्षित
           </p>
